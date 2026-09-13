@@ -1,0 +1,21 @@
+{
+  "name": "Мой Кликер",
+  "short_name": "Кликер",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "start_url": "./index.html",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "icons": [
+    {
+      "src": "images/items/earth.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/items/earth.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
