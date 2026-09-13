@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Продвинутый Кликер</title>
@@ -44,7 +45,7 @@
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
 
-        /* --- ГЛАВНОЕ МЕНЮ --- */
+        /* --- ГЛАВНОЕ МЕНЮ (Стартовый экран) --- */
         #main-menu {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -116,6 +117,7 @@
             justify-content: center;
             position: relative;
             background-color: #6a83c7; 
+            background-image: url('images/backgrounds/default.jpg');
             background-size: cover; 
             background-position: center bottom; 
             background-repeat: no-repeat;
@@ -158,23 +160,8 @@
             margin-top: 60px; /* Отступ от кнопки паузы */
         }
 
-        .coins-text {
-            font-size: 38px;
-            font-weight: 800;
-            color: #ffd700;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-            margin-bottom: 5px;
-        }
-
-        .diamonds-text {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--accent-diamond);
-            text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
-            margin-top: 10px;
-            display: none; 
-        }
-
+        .coins-text { font-size: 38px; font-weight: 800; color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); margin-bottom: 5px; }
+        .diamonds-text { font-size: 24px; font-weight: 700; color: var(--accent-diamond); text-shadow: 0 0 10px rgba(0, 229, 255, 0.5); margin-top: 10px; display: none; }
         .stats-text { font-size: 16px; color: var(--text-muted); margin-top: 5px; }
         .buff-text { font-size: 16px; color: #ffeb3b; font-weight: bold; margin-top: 10px; text-shadow: 0 0 5px rgba(255, 235, 59, 0.5); display: none; }
 
@@ -282,7 +269,7 @@
         .tab-btn[data-target="tab-prestige"].active { border-bottom-color: var(--accent-diamond); }
 
         .tab-content { display: none; flex: 1; overflow-y: auto; padding: 20px; }
-        .tab-content.active { display: flex; flex-direction: column; gap: 15px; padding-bottom: 80px; } /* Отступ снизу для прокрутки */
+        .tab-content.active { display: flex; flex-direction: column; gap: 15px; padding-bottom: 80px; }
 
         .card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 10px; backdrop-filter: blur(5px); }
         .card-header { display: flex; justify-content: space-between; align-items: center; }
@@ -301,7 +288,7 @@
 
         .prestige-box { text-align: center; padding: 20px; background: rgba(0, 229, 255, 0.1); border: 2px dashed var(--accent-diamond); border-radius: 12px; margin-bottom: 20px; }
 
-        /* Всплывающие окна (модалки) */
+        /* Всплывающие окна */
         .modal-overlay {
             display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.8); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(5px);
@@ -312,38 +299,14 @@
         }
         .modal-buttons-container { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
 
-        /* Ползунок громкости */
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            background: transparent;
-            margin: 20px 0;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 20px;
-            width: 20px;
-            border-radius: 50%;
-            background: var(--accent-color);
-            cursor: pointer;
-            margin-top: -8px; 
-            box-shadow: 0 0 10px rgba(76, 175, 80, 0.8);
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            cursor: pointer;
-            background: rgba(255,255,255,0.2);
-            border-radius: 2px;
-        }
-
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; margin: 20px 0; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 20px; width: 20px; border-radius: 50%; background: var(--accent-color); cursor: pointer; margin-top: -8px; box-shadow: 0 0 10px rgba(76, 175, 80, 0.8); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: rgba(255,255,255,0.2); border-radius: 2px; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
 </head>
 <body>
-
     <div id="app-container">
-        
         <!-- ГЛАВНОЕ МЕНЮ -->
         <div id="main-menu">
             <h1>Продвинутый Кликер</h1>
@@ -354,9 +317,7 @@
         <!-- ИГРОВОЙ ЭКРАН -->
         <div id="game-screen" style="display: none;">
             <div class="game-area" id="game-area">
-                
                 <button class="btn-pause" onclick="openPauseMenu()">⚙️</button>
-                
                 <div class="score-board">
                     <div class="coins-text" id="coins-display">0</div>
                     <div class="diamonds-text" id="diamonds-container"><span id="diamonds-display">0</span> 💎</div>
@@ -366,11 +327,9 @@
                     <div class="buff-text" id="buff-display">Бафф: <span id="buff-name"></span> (<span id="buff-timer">00:00</span>)</div>
                     <div class="stats-text" id="next-gift-timer" style="margin-top: 10px; color: #ffeb3b;">Подарок через: 02:00</div>
                 </div>
-            
                 <div class="click-item-container">
                     <img src="" alt="Кликни меня" class="click-item" id="main-clicker">
                 </div>
-                
                 <button class="shop-toggle-btn" onclick="openShop()">🛒 Магазин</button>
             </div>
         </div>
@@ -394,7 +353,6 @@
             <div class="tab-content" id="tab-upgrades"></div>
             <div class="tab-content" id="tab-sounds"></div>
             <div class="tab-content" id="tab-backgrounds"></div>
-
             <div class="tab-content" id="tab-prestige">
                 <div class="prestige-box">
                     <h3 style="margin-top:0; color: var(--accent-diamond);">Сброс прогресса</h3>
@@ -412,10 +370,8 @@
         <div id="pause-menu" class="modal-overlay">
             <div class="modal-box">
                 <h2 style="margin-top: 0; color: #fff;">Настройки</h2>
-                
                 <div style="text-align: left; margin-bottom: 5px; color: var(--text-muted);">Громкость звука: <span id="volume-val-display">100</span>%</div>
                 <input type="range" id="volume-slider" min="0" max="100" value="100" oninput="changeVolume(this.value)">
-                
                 <div style="margin-top: 30px; display: flex; flex-direction: column; gap: 10px;">
                     <button class="btn-buy" style="justify-content: center; background: #555;" onclick="saveGame(); alert('Игра сохранена!');">💾 Сохранить игру</button>
                     <button class="btn-buy" style="justify-content: center; background: #d32f2f;" onclick="hardReset()">⚠️ Полный сброс</button>
@@ -432,8 +388,7 @@
                 <div class="modal-buttons-container" id="modal-buttons"></div>
             </div>
         </div>
-
-    </div> <!-- Конец app-container -->
+    </div> 
 
     <script>
         const prestigeItemsConfig = [
@@ -503,7 +458,7 @@
             buffTimeLeft: 0,
             equippedSound: 'default',
             equippedBackground: 'default',
-            volume: 1.0, // Громкость звука от 0 до 1
+            volume: 1.0,
             clickHelpers: JSON.parse(JSON.stringify(defaultClickHelpers)),
             helpers: JSON.parse(JSON.stringify(defaultHelpers)),
             upgrades: JSON.parse(JSON.stringify(defaultUpgrades)),
@@ -512,150 +467,67 @@
             backgrounds: JSON.parse(JSON.stringify(defaultBackgrounds))
         };
 
-        let currentCPS = 0;
-        let currentClickPower = 1;
-        let currentCritChance = 1;
-        let currentCritMult = 2;
-        let sessionClickCount = 0;
-        let nextGiftTimeLeft = 120;
+        let currentCPS = 0, currentClickPower = 1, currentCritChance = 1, currentCritMult = 2, sessionClickCount = 0, nextGiftTimeLeft = 120;
 
-        const uiCoins = document.getElementById('coins-display');
-        const uiCps = document.getElementById('cps-display');
-        const uiClickPower = document.getElementById('click-power-display');
-        const uiCritDisplay = document.getElementById('crit-display');
-        const uiDiamondsContainer = document.getElementById('diamonds-container');
-        const uiDiamonds = document.getElementById('diamonds-display');
-        const uiBuffDisplay = document.getElementById('buff-display');
-        const uiBuffTimer = document.getElementById('buff-timer');
-        const uiBuffName = document.getElementById('buff-name');
-        const uiNextGiftTimer = document.getElementById('next-gift-timer');
-        const mainClicker = document.getElementById('main-clicker');
-        const gameArea = document.getElementById('game-area');
+        const uiCoins = document.getElementById('coins-display'), uiCps = document.getElementById('cps-display');
+        const uiClickPower = document.getElementById('click-power-display'), uiCritDisplay = document.getElementById('crit-display');
+        const uiDiamondsContainer = document.getElementById('diamonds-container'), uiDiamonds = document.getElementById('diamonds-display');
+        const uiBuffDisplay = document.getElementById('buff-display'), uiBuffTimer = document.getElementById('buff-timer');
+        const uiBuffName = document.getElementById('buff-name'), uiNextGiftTimer = document.getElementById('next-gift-timer');
+        const mainClicker = document.getElementById('main-clicker'), gameArea = document.getElementById('game-area');
+        const menuScreen = document.getElementById('main-menu'), gameScreen = document.getElementById('game-screen');
+        const shopArea = document.getElementById('shop-area'), pauseMenu = document.getElementById('pause-menu');
 
-        // Экраны
-        const menuScreen = document.getElementById('main-menu');
-        const gameScreen = document.getElementById('game-screen');
-        const shopArea = document.getElementById('shop-area');
-        const pauseMenu = document.getElementById('pause-menu');
+        let isAudioInitialized = false, mainClickSynth, uiClickSynth, preloadedAudio = {};
 
-        // Звуки
-        let isAudioInitialized = false;
-        let mainClickSynth;
-        let uiClickSynth;
-        let preloadedAudio = {};
-
-        function preloadCustomSounds() {
-            defaultSounds.forEach(s => {
-                preloadedAudio[s.id] = new Audio(s.file);
-            });
-        }
+        function preloadCustomSounds() { defaultSounds.forEach(s => { preloadedAudio[s.id] = new Audio(s.file); }); }
         preloadCustomSounds();
 
         async function initAudio() {
             if (isAudioInitialized) return;
             await Tone.start();
-            
             const mainFilter = new Tone.Filter(350, "lowpass").toDestination();
-            mainClickSynth = new Tone.MembraneSynth({
-                pitchDecay: 0.005, octaves: 1.2, oscillator: { type: "sine" },
-                envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.01 }
-            }).connect(mainFilter);
-
+            mainClickSynth = new Tone.MembraneSynth({ pitchDecay: 0.005, octaves: 1.2, oscillator: { type: "sine" }, envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.01 } }).connect(mainFilter);
             const uiFilter = new Tone.Filter(500, "lowpass").toDestination();
-            uiClickSynth = new Tone.MembraneSynth({
-                pitchDecay: 0.01, octaves: 1.5, oscillator: { type: "triangle" },
-                envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.01 }
-            }).connect(uiFilter);
-
-            isAudioInitialized = true;
-            applyVolume();
+            uiClickSynth = new Tone.MembraneSynth({ pitchDecay: 0.01, octaves: 1.5, oscillator: { type: "triangle" }, envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.01 } }).connect(uiFilter);
+            isAudioInitialized = true; applyVolume();
         }
 
-        // --- УПРАВЛЕНИЕ ЭКРАНАМИ ---
-        function startGame() {
-            initAudio(); // Активируем звук по клику кнопки ИГРАТЬ
-            menuScreen.style.display = 'none';
-            gameScreen.style.display = 'flex';
-        }
-
+        function startGame() { initAudio(); menuScreen.style.display = 'none'; gameScreen.style.display = 'flex'; }
         function openShop() { shopArea.classList.add('open'); }
         function closeShop() { shopArea.classList.remove('open'); }
-        
-        function openPauseMenu() {
-            pauseMenu.style.display = 'flex';
-            document.getElementById('volume-slider').value = Math.round(game.volume * 100);
-            document.getElementById('volume-val-display').innerText = Math.round(game.volume * 100);
-        }
+        function openPauseMenu() { pauseMenu.style.display = 'flex'; document.getElementById('volume-slider').value = Math.round(game.volume * 100); document.getElementById('volume-val-display').innerText = Math.round(game.volume * 100); }
         function closePauseMenu() { pauseMenu.style.display = 'none'; }
 
-        // --- ГРОМКОСТЬ ---
-        window.changeVolume = function(val) {
-            game.volume = val / 100;
-            document.getElementById('volume-val-display').innerText = val;
-            applyVolume();
-            saveGame();
-        }
-
+        window.changeVolume = function(val) { game.volume = val / 100; document.getElementById('volume-val-display').innerText = val; applyVolume(); saveGame(); }
         function applyVolume() {
-            for (let key in preloadedAudio) {
-                preloadedAudio[key].volume = game.volume * 0.8;
-            }
+            for (let key in preloadedAudio) preloadedAudio[key].volume = game.volume * 0.8;
             if (isAudioInitialized) {
-                if (game.volume === 0) {
-                    Tone.getDestination().mute = true;
-                } else {
-                    Tone.getDestination().mute = false;
-                    // Конвертация громкости от 0-1 в децибелы (логарифмическая шкала)
-                    Tone.getDestination().volume.value = 20 * Math.log10(game.volume);
-                }
+                Tone.getDestination().mute = (game.volume === 0);
+                if(game.volume > 0) Tone.getDestination().volume.value = 20 * Math.log10(game.volume);
             }
         }
 
-        // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
         function showModal(title, text, type, onConfirmCallback = null) {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-text').innerHTML = text;
-            
-            const overlay = document.getElementById('modal-overlay');
-            const btnsContainer = document.getElementById('modal-buttons');
+            document.getElementById('modal-title').innerText = title; document.getElementById('modal-text').innerHTML = text;
+            const overlay = document.getElementById('modal-overlay'), btnsContainer = document.getElementById('modal-buttons');
             btnsContainer.innerHTML = ''; 
-
             if (type === 'alert') {
-                const btnOk = document.createElement('button');
-                btnOk.className = 'btn-buy'; btnOk.innerText = 'Понятно'; btnOk.style.justifyContent = 'center';
-                btnOk.onclick = () => overlay.style.display = 'none';
-                btnsContainer.appendChild(btnOk);
+                const btnOk = document.createElement('button'); btnOk.className = 'btn-buy'; btnOk.innerText = 'Понятно'; btnOk.style.justifyContent = 'center'; btnOk.onclick = () => overlay.style.display = 'none'; btnsContainer.appendChild(btnOk);
             } else if (type === 'confirm') {
-                const btnNo = document.createElement('button');
-                btnNo.className = 'btn-buy'; btnNo.innerText = 'Отмена'; btnNo.style.background = '#555'; btnNo.style.justifyContent = 'center';
-                btnNo.onclick = () => overlay.style.display = 'none';
-
-                const btnYes = document.createElement('button');
-                btnYes.className = 'btn-buy'; btnYes.innerText = 'Подтвердить'; btnYes.style.background = '#d32f2f'; btnYes.style.justifyContent = 'center';
-                btnYes.onclick = () => { overlay.style.display = 'none'; if (onConfirmCallback) onConfirmCallback(); };
-
-                btnsContainer.appendChild(btnNo);
-                btnsContainer.appendChild(btnYes);
+                const btnNo = document.createElement('button'); btnNo.className = 'btn-buy'; btnNo.innerText = 'Отмена'; btnNo.style.background = '#555'; btnNo.style.justifyContent = 'center'; btnNo.onclick = () => overlay.style.display = 'none';
+                const btnYes = document.createElement('button'); btnYes.className = 'btn-buy'; btnYes.innerText = 'Подтвердить'; btnYes.style.background = '#d32f2f'; btnYes.style.justifyContent = 'center'; btnYes.onclick = () => { overlay.style.display = 'none'; if (onConfirmCallback) onConfirmCallback(); };
+                btnsContainer.appendChild(btnNo); btnsContainer.appendChild(btnYes);
             }
             overlay.style.display = 'flex';
         }
 
-        function formatNumber(num) {
-            if (num < 1000) return Math.floor(num);
-            if (num < 1000000) return (num / 1000).toFixed(1) + 'K';
-            if (num < 1000000000) return (num / 1000000).toFixed(2) + 'M';
-            return (num / 1000000000).toFixed(2) + 'B';
-        }
-        function formatTime(sec) {
-            let m = Math.floor(sec / 60); let s = Math.floor(sec % 60);
-            return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
-        }
+        function formatNumber(num) { if (num < 1000) return Math.floor(num); if (num < 1000000) return (num / 1000).toFixed(1) + 'K'; if (num < 1000000000) return (num / 1000000).toFixed(2) + 'M'; return (num / 1000000000).toFixed(2) + 'B'; }
+        function formatTime(sec) { let m = Math.floor(sec / 60); let s = Math.floor(sec % 60); return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`; }
         function calculateCost(baseCost, multiplier, count) { return Math.floor(baseCost * Math.pow(multiplier, count)); }
 
-        // --- ИГРОВАЯ ЛОГИКА ---
         function updateItemImage() {
-            const level = Math.min(game.prestigeCount, prestigeItemsConfig.length - 1);
-            const itemConfig = prestigeItemsConfig[level];
+            const level = Math.min(game.prestigeCount, prestigeItemsConfig.length - 1); const itemConfig = prestigeItemsConfig[level];
             mainClicker.onerror = null;
             mainClicker.onerror = function() {
                 this.onerror = null;
@@ -666,205 +538,125 @@
         }
 
         function applyBackground() {
-            if (game.equippedBackground === 'default') {
-                gameArea.style.backgroundImage = "url('images/backgrounds/default.jpg')";
-            } else {
-                const bg = game.backgrounds.find(b => b.id === game.equippedBackground);
-                if (bg) gameArea.style.backgroundImage = `url('${bg.file}')`;
-            }
+            if (game.equippedBackground === 'default') gameArea.style.backgroundImage = "url('images/backgrounds/default.jpg')";
+            else { const bg = game.backgrounds.find(b => b.id === game.equippedBackground); if (bg) gameArea.style.backgroundImage = `url('${bg.file}')`; }
         }
 
         function calculateStats() {
             let prestigeFlatClick = 0; let globalMult = 1; let prestigeClickMult = 1; let prestigeCpsMult = 1;
             game.prestigeUpgrades.forEach(pu => {
-                if (pu.type === 'flatClick') prestigeFlatClick += pu.count;
-                if (pu.type === 'flatClick10') prestigeFlatClick += pu.count * 10;
-                if (pu.type === 'globalMult') globalMult *= (1 + (pu.count * 0.05));
-                if (pu.type === 'clickMult') prestigeClickMult *= (1 + (pu.count * 0.15));
+                if (pu.type === 'flatClick') prestigeFlatClick += pu.count; if (pu.type === 'flatClick10') prestigeFlatClick += pu.count * 10;
+                if (pu.type === 'globalMult') globalMult *= (1 + (pu.count * 0.05)); if (pu.type === 'clickMult') prestigeClickMult *= (1 + (pu.count * 0.15));
                 if (pu.type === 'cpsMult') prestigeCpsMult *= (1 + (pu.count * 0.05));
             });
 
             let clickMult = 1; let uGlobalMult = 1;
-            game.upgrades.forEach(u => {
-                if (u.bought) {
-                    if (u.type === 'clickMult') clickMult *= u.value;
-                    if (u.type === 'globalMult') uGlobalMult *= u.value;
-                }
-            });
+            game.upgrades.forEach(u => { if (u.bought) { if (u.type === 'clickMult') clickMult *= u.value; if (u.type === 'globalMult') uGlobalMult *= u.value; } });
 
-            let finalGlobalMult = globalMult * uGlobalMult;
-            let baseClickPower = 1; let calcCritChance = 1; let calcCritMult = 2; 
+            let finalGlobalMult = globalMult * uGlobalMult; let baseClickPower = 1; let calcCritChance = 1; let calcCritMult = 2; 
             
             game.clickHelpers.forEach(ch => {
-                if (ch.type === 'flatClick') baseClickPower += ch.baseClick * ch.count;
-                else if (ch.type === 'critChance') calcCritChance += ch.count * 1;
+                if (ch.type === 'flatClick') baseClickPower += ch.baseClick * ch.count; else if (ch.type === 'critChance') calcCritChance += ch.count * 1;
                 else if (ch.type === 'critMult') calcCritMult += ch.count * 0.5;
             });
             
-            currentCritChance = calcCritChance; currentCritMult = calcCritMult;
-            currentClickPower = (baseClickPower + prestigeFlatClick) * clickMult * prestigeClickMult * finalGlobalMult;
+            currentCritChance = calcCritChance; currentCritMult = calcCritMult; currentClickPower = (baseClickPower + prestigeFlatClick) * clickMult * prestigeClickMult * finalGlobalMult;
 
-            let baseCPS = 0;
-            game.helpers.forEach(h => { baseCPS += h.baseCPS * h.count; });
+            let baseCPS = 0; game.helpers.forEach(h => { baseCPS += h.baseCPS * h.count; });
             currentCPS = baseCPS * prestigeCpsMult * finalGlobalMult;
-
-            if (game.activeBuff === 'cps_boost') currentCPS *= 1.5;
-            if (game.activeBuff === 'click_x2') currentClickPower *= 2;
-
+            if (game.activeBuff === 'cps_boost') currentCPS *= 1.5; if (game.activeBuff === 'click_x2') currentClickPower *= 2;
             renderShops(); updateUI();
         }
 
         function updateUI() {
-            uiCoins.innerText = formatNumber(game.coins);
-            uiCps.innerText = `Доход: ${formatNumber(currentCPS)} монет/сек`;
-            uiClickPower.innerText = `За клик: ${formatNumber(currentClickPower)}`;
-            uiCritDisplay.innerText = `Крит: ${currentCritChance}% (x${currentCritMult.toFixed(1)})`;
-
-            if (game.diamonds > 0 || game.prestigeCount > 0) {
-                uiDiamondsContainer.style.display = 'block';
-                uiDiamonds.innerText = formatNumber(game.diamonds);
-            }
+            uiCoins.innerText = formatNumber(game.coins); uiCps.innerText = `Доход: ${formatNumber(currentCPS)} монет/сек`;
+            uiClickPower.innerText = `За клик: ${formatNumber(currentClickPower)}`; uiCritDisplay.innerText = `Крит: ${currentCritChance}% (x${currentCritMult.toFixed(1)})`;
+            if (game.diamonds > 0 || game.prestigeCount > 0) { uiDiamondsContainer.style.display = 'block'; uiDiamonds.innerText = formatNumber(game.diamonds); }
             document.getElementById('prestige-gain').innerText = `+${getPotentialDiamonds()} Алмазов`;
 
             if (game.buffTimeLeft > 0 && game.activeBuff) {
-                uiBuffDisplay.style.display = 'block';
-                uiBuffTimer.innerText = formatTime(game.buffTimeLeft);
+                uiBuffDisplay.style.display = 'block'; uiBuffTimer.innerText = formatTime(game.buffTimeLeft);
                 if (game.activeBuff === 'cps_boost') uiBuffName.innerText = '+50% Дохода';
                 if (game.activeBuff === 'click_x2') uiBuffName.innerText = 'x2 Клик';
                 if (game.activeBuff === 'alt_click_x5') uiBuffName.innerText = 'Каждый 2-й клик x5';
-            } else {
-                uiBuffDisplay.style.display = 'none';
-            }
-
-            uiNextGiftTimer.innerText = `Подарок через: ${formatTime(nextGiftTimeLeft)}`;
-            updateButtonsState();
+            } else { uiBuffDisplay.style.display = 'none'; }
+            uiNextGiftTimer.innerText = `Подарок через: ${formatTime(nextGiftTimeLeft)}`; updateButtonsState();
         }
 
         function updateButtonsState() {
             document.querySelectorAll('.btn-buy').forEach(btn => {
                 if (btn.hasAttribute('data-cost')) {
-                    const cost = parseFloat(btn.getAttribute('data-cost'));
-                    const currency = btn.getAttribute('data-currency');
-                    if (currency === 'coins') btn.disabled = game.coins < cost;
-                    else if (currency === 'diamonds') btn.disabled = game.diamonds < cost;
+                    const cost = parseFloat(btn.getAttribute('data-cost')); const currency = btn.getAttribute('data-currency');
+                    if (currency === 'coins') btn.disabled = game.coins < cost; else if (currency === 'diamonds') btn.disabled = game.diamonds < cost;
                 }
             });
         }
 
         function switchTab(tabId) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.querySelector(`.tab-btn[data-target="${tabId}"]`).classList.add('active');
-            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active')); document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelector(`.tab-btn[data-target="${tabId}"]`).classList.add('active'); document.getElementById(tabId).classList.add('active');
         }
 
         document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                switchTab(btn.getAttribute('data-target'));
-                if(isAudioInitialized) { uiClickSynth.detune.value = (Math.random() - 0.5) * 50; uiClickSynth.triggerAttackRelease("E2", "16n"); }
-            });
+            btn.addEventListener('click', () => { switchTab(btn.getAttribute('data-target')); if(isAudioInitialized) { uiClickSynth.detune.value = (Math.random() - 0.5) * 50; uiClickSynth.triggerAttackRelease("E2", "16n"); } });
         });
 
         function renderShops() {
-            // Клик
             const clickContainer = document.getElementById('tab-click'); clickContainer.innerHTML = '';
-            game.clickHelpers.forEach((ch, index) => {
-                const cost = calculateCost(ch.baseCost, ch.costMult, ch.count); const canAfford = game.coins >= cost;
-                clickContainer.innerHTML += `<div class="card"><div class="card-header"><div class="card-title">${ch.name}</div><div class="card-count">${ch.count}</div></div><div class="card-desc">${ch.desc}</div><button class="btn-buy" data-cost="${cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buyClickHelper(${index})"><span>Купить</span><span>${formatNumber(cost)} 💰</span></button></div>`;
-            });
-            // Помощники
+            game.clickHelpers.forEach((ch, index) => { const cost = calculateCost(ch.baseCost, ch.costMult, ch.count); const canAfford = game.coins >= cost; clickContainer.innerHTML += `<div class="card"><div class="card-header"><div class="card-title">${ch.name}</div><div class="card-count">${ch.count}</div></div><div class="card-desc">${ch.desc}</div><button class="btn-buy" data-cost="${cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buyClickHelper(${index})"><span>Купить</span><span>${formatNumber(cost)} 💰</span></button></div>`; });
+            
             const helpersContainer = document.getElementById('tab-helpers'); helpersContainer.innerHTML = '';
-            game.helpers.forEach((h, index) => {
-                const cost = calculateCost(h.baseCost, h.costMult, h.count); const canAfford = game.coins >= cost;
-                helpersContainer.innerHTML += `<div class="card"><div class="card-header"><div class="card-title">${h.name}</div><div class="card-count">${h.count}</div></div><div class="card-desc">${h.desc}<br>Дает: ${h.baseCPS} м/с</div><button class="btn-buy" data-cost="${cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buyHelper(${index})"><span>Купить</span><span>${formatNumber(cost)} 💰</span></button></div>`;
-            });
-            // Улучшения
+            game.helpers.forEach((h, index) => { const cost = calculateCost(h.baseCost, h.costMult, h.count); const canAfford = game.coins >= cost; helpersContainer.innerHTML += `<div class="card"><div class="card-header"><div class="card-title">${h.name}</div><div class="card-count">${h.count}</div></div><div class="card-desc">${h.desc}<br>Дает: ${h.baseCPS} м/с</div><button class="btn-buy" data-cost="${cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buyHelper(${index})"><span>Купить</span><span>${formatNumber(cost)} 💰</span></button></div>`; });
+            
             const upgradesContainer = document.getElementById('tab-upgrades'); upgradesContainer.innerHTML = '';
-            game.upgrades.forEach((u, index) => {
-                if (u.bought) return; 
-                const canAfford = game.coins >= u.cost;
-                upgradesContainer.innerHTML += `<div class="card"><div class="card-header"><div class="card-title">${u.name}</div></div><div class="card-desc">${u.desc}</div><button class="btn-buy" style="background: #ef6c00;" data-cost="${u.cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buyUpgrade(${index})"><span>Улучшить</span><span>${formatNumber(u.cost)} 💰</span></button></div>`;
-            });
-            // Звуки
+            game.upgrades.forEach((u, index) => { if (u.bought) return; const canAfford = game.coins >= u.cost; upgradesContainer.innerHTML += `<div class="card"><div class="card-header"><div class="card-title">${u.name}</div></div><div class="card-desc">${u.desc}</div><button class="btn-buy" style="background: #ef6c00;" data-cost="${u.cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buyUpgrade(${index})"><span>Улучшить</span><span>${formatNumber(u.cost)} 💰</span></button></div>`; });
+            
             const soundsContainer = document.getElementById('tab-sounds');
             soundsContainer.innerHTML = `<div class="card" style="border-color: ${game.equippedSound === 'default' ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)'};"><div class="card-header"><div class="card-title">Классика (Синтезатор)</div></div><div class="card-desc">Стандартный кремовый звук</div><button class="btn-buy" style="background: ${game.equippedSound === 'default' ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${game.equippedSound === 'default' ? 'disabled' : ''} onclick="equipSound('default')">${game.equippedSound === 'default' ? 'Выбрано' : 'Выбрать'}</button></div>`;
-            game.sounds.forEach((s, index) => {
-                const canAfford = game.coins >= s.cost; const isEquipped = game.equippedSound === s.id;
-                let btn = s.bought ? `<button class="btn-buy" style="background: ${isEquipped ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${isEquipped ? 'disabled' : ''} onclick="equipSound('${s.id}')">${isEquipped ? 'Выбрано' : 'Выбрать'}</button>` : `<button class="btn-buy" data-cost="${s.cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buySound(${index})"><span>Купить</span><span>${formatNumber(s.cost)} 💰</span></button>`;
-                soundsContainer.innerHTML += `<div class="card" style="border-color: ${isEquipped ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)'};"><div class="card-header"><div class="card-title">${s.name}</div></div><div class="card-desc">${s.desc}</div>${btn}</div>`;
-            });
-            // Фоны
+            game.sounds.forEach((s, index) => { const canAfford = game.coins >= s.cost; const isEquipped = game.equippedSound === s.id; let btn = s.bought ? `<button class="btn-buy" style="background: ${isEquipped ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${isEquipped ? 'disabled' : ''} onclick="equipSound('${s.id}')">${isEquipped ? 'Выбрано' : 'Выбрать'}</button>` : `<button class="btn-buy" data-cost="${s.cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buySound(${index})"><span>Купить</span><span>${formatNumber(s.cost)} 💰</span></button>`; soundsContainer.innerHTML += `<div class="card" style="border-color: ${isEquipped ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)'};"><div class="card-header"><div class="card-title">${s.name}</div></div><div class="card-desc">${s.desc}</div>${btn}</div>`; });
+            
             const bgContainer = document.getElementById('tab-backgrounds');
-            bgContainer.innerHTML = `<div class="card" style="border-color: ${game.equippedBackground === 'default' ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)'};"><div class="card-header"><div class="card-title">Классика</div></div><div class="card-desc">Загружает images/backgrounds/default.jpg</div><button class="btn-buy" style="background: ${game.equippedBackground === 'default' ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${game.equippedBackground === 'default' ? 'disabled' : ''} onclick="equipBackground('default')">${game.equippedBackground === 'default' ? 'Выбрано' : 'Выбрать'}</button></div>`;
-            game.backgrounds.forEach((b, index) => {
-                const canAfford = game.coins >= b.cost; const isEquipped = game.equippedBackground === b.id;
-                let btn = b.bought ? `<button class="btn-buy" style="background: ${isEquipped ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${isEquipped ? 'disabled' : ''} onclick="equipBackground('${b.id}')">${isEquipped ? 'Выбрано' : 'Выбрать'}</button>` : `<button class="btn-buy" data-cost="${b.cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buyBackground(${index})"><span>Купить</span><span>${formatNumber(b.cost)} 💰</span></button>`;
-                bgContainer.innerHTML += `<div class="card" style="border-color: ${isEquipped ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)'};"><div class="card-header"><div class="card-title">${b.name}</div></div><div class="card-desc">${b.desc}</div>${btn}</div>`;
-            });
-            // Престиж
+            bgContainer.innerHTML = `<div class="card" style="border-color: ${game.equippedBackground === 'default' ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)'};"><div class="card-header"><div class="card-title">Классика</div></div><div class="card-desc">Начальный фон</div><button class="btn-buy" style="background: ${game.equippedBackground === 'default' ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${game.equippedBackground === 'default' ? 'disabled' : ''} onclick="equipBackground('default')">${game.equippedBackground === 'default' ? 'Выбрано' : 'Выбрать'}</button></div>`;
+            game.backgrounds.forEach((b, index) => { const canAfford = game.coins >= b.cost; const isEquipped = game.equippedBackground === b.id; let btn = b.bought ? `<button class="btn-buy" style="background: ${isEquipped ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${isEquipped ? 'disabled' : ''} onclick="equipBackground('${b.id}')">${isEquipped ? 'Выбрано' : 'Выбрать'}</button>` : `<button class="btn-buy" data-cost="${b.cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buyBackground(${index})"><span>Купить</span><span>${formatNumber(b.cost)} 💰</span></button>`; bgContainer.innerHTML += `<div class="card" style="border-color: ${isEquipped ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)'};"><div class="card-header"><div class="card-title">${b.name}</div></div><div class="card-desc">${b.desc}</div>${btn}</div>`; });
+            
             const prestigeContainer = document.getElementById('prestige-upgrades-container'); prestigeContainer.innerHTML = '';
-            game.prestigeUpgrades.forEach((pu, index) => {
-                const cost = calculateCost(pu.baseCost, pu.costMult, pu.count); const canAfford = game.diamonds >= cost;
-                prestigeContainer.innerHTML += `<div class="card" style="border-color: rgba(0, 229, 255, 0.3);"><div class="card-header"><div class="card-title" style="color: var(--accent-diamond);">${pu.name}</div><div class="card-count" style="color: var(--accent-diamond);">${pu.count}</div></div><div class="card-desc">${pu.desc}</div><button class="btn-buy btn-prestige-buy" data-cost="${cost}" data-currency="diamonds" ${!canAfford ? 'disabled' : ''} onclick="buyPrestigeUpgrade(${index})"><span>Прокачать</span><span>${formatNumber(cost)} 💎</span></button></div>`;
-            });
+            game.prestigeUpgrades.forEach((pu, index) => { const cost = calculateCost(pu.baseCost, pu.costMult, pu.count); const canAfford = game.diamonds >= cost; prestigeContainer.innerHTML += `<div class="card" style="border-color: rgba(0, 229, 255, 0.3);"><div class="card-header"><div class="card-title" style="color: var(--accent-diamond);">${pu.name}</div><div class="card-count" style="color: var(--accent-diamond);">${pu.count}</div></div><div class="card-desc">${pu.desc}</div><button class="btn-buy btn-prestige-buy" data-cost="${cost}" data-currency="diamonds" ${!canAfford ? 'disabled' : ''} onclick="buyPrestigeUpgrade(${index})"><span>Прокачать</span><span>${formatNumber(cost)} 💎</span></button></div>`; });
         }
 
-        // --- СОБЫТИЯ ---
-        function getPotentialDiamonds() {
-            if (game.totalCoinsInRun < 10000) return 0;
-            return Math.floor(Math.cbrt(game.totalCoinsInRun / 10000));
-        }
+        function getPotentialDiamonds() { if (game.totalCoinsInRun < 10000) return 0; return Math.floor(Math.cbrt(game.totalCoinsInRun / 10000)); }
 
         function doPrestige() {
-            const reward = getPotentialDiamonds();
-            if (reward <= 0) { showModal('Слишком рано!', 'Нужно заработать за этот забег хотя бы 10 000 монет, чтобы получить престиж!', 'alert'); return; }
+            const reward = getPotentialDiamonds(); if (reward <= 0) { showModal('Слишком рано!', 'Нужно заработать за этот забег хотя бы 10 000 монет, чтобы получить престиж!', 'alert'); return; }
             showModal('Совершить Престиж?', `Вы уверены? Вы потеряете все монеты, помощников и улучшения за монеты, но получите <b style="color:var(--accent-diamond)">${reward} Алмазов</b> и предмет эволюционирует!`, 'confirm', () => {
-                game.diamonds += reward; game.prestigeCount++;
-                game.coins = 0; game.totalCoinsInRun = 0; game.activeBuff = null; game.buffTimeLeft = 0; sessionClickCount = 0;
+                game.diamonds += reward; game.prestigeCount++; game.coins = 0; game.totalCoinsInRun = 0; game.activeBuff = null; game.buffTimeLeft = 0; sessionClickCount = 0;
                 game.clickHelpers = JSON.parse(JSON.stringify(defaultClickHelpers)); game.helpers = JSON.parse(JSON.stringify(defaultHelpers)); game.upgrades = JSON.parse(JSON.stringify(defaultUpgrades));
-                
-                updateItemImage(); calculateStats(); saveGame(); switchTab('tab-prestige');
-                showModal('Эволюция!', `Поздравляем! Ваш предмет эволюционировал на стадию: <b>${prestigeItemsConfig[Math.min(game.prestigeCount, prestigeItemsConfig.length-1)].name}</b>!`, 'alert');
+                updateItemImage(); calculateStats(); saveGame(); switchTab('tab-prestige'); showModal('Эволюция!', `Поздравляем! Ваш предмет эволюционировал на стадию: <b>${prestigeItemsConfig[Math.min(game.prestigeCount, prestigeItemsConfig.length-1)].name}</b>!`, 'alert');
             });
         }
 
         mainClicker.addEventListener('pointerdown', (e) => {
             initAudio();
             if (isAudioInitialized) {
-                if (game.equippedSound === 'default') {
-                    mainClickSynth.detune.value = (Math.random() - 0.5) * 50;
-                    mainClickSynth.triggerAttackRelease("C2", "16n");
-                } else {
-                    try {
-                        const audioClone = preloadedAudio[game.equippedSound].cloneNode(true);
-                        audioClone.volume = game.volume * 0.8;
-                        audioClone.play().catch(()=>{});
-                    } catch (err) {}
-                }
+                if (game.equippedSound === 'default') { mainClickSynth.detune.value = (Math.random() - 0.5) * 50; mainClickSynth.triggerAttackRelease("C2", "16n"); }
+                else { try { const audioClone = preloadedAudio[game.equippedSound].cloneNode(true); audioClone.volume = game.volume * 0.8; audioClone.play().catch(()=>{}); } catch (err) {} }
             }
-
             let finalPower = currentClickPower; let isCrit = false;
             if (game.activeBuff === 'alt_click_x5') { sessionClickCount++; if (sessionClickCount % 2 === 0) finalPower *= 5; }
             if (Math.random() * 100 < currentCritChance) { finalPower *= currentCritMult; isCrit = true; }
-
             game.coins += finalPower; game.totalCoinsInRun += finalPower;
-            createFloatingText(e.clientX, e.clientY, `+${formatNumber(finalPower)}`, isCrit);
-            updateUI();
+            createFloatingText(e.clientX, e.clientY, `+${formatNumber(finalPower)}`, isCrit); updateUI();
         });
 
         function createFloatingText(x, y, text, isCrit) {
             const el = document.createElement('div'); el.className = 'floating-text'; el.innerText = text;
             if (isCrit) { el.style.color = '#ff5252'; el.style.fontSize = '36px'; el.style.textShadow = '0px 0px 15px rgba(255, 0, 0, 0.8)'; }
             const offsetX = (Math.random() - 0.5) * 40; el.style.left = (x + offsetX) + 'px'; el.style.top = (y - 20) + 'px';
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 1000);
+            document.body.appendChild(el); setTimeout(() => el.remove(), 1000);
         }
 
         function spawnGift() {
             const gift = document.createElement('div'); gift.innerText = '🎁'; gift.style.position = 'absolute'; gift.style.fontSize = '60px'; gift.style.cursor = 'pointer'; gift.style.left = (Math.random() * 80 + 10) + '%'; gift.style.top = '-80px'; gift.style.transition = 'top 5s linear'; gift.style.zIndex = 100; gift.style.filter = 'drop-shadow(0px 0px 10px gold)';
-            document.getElementById('game-area').appendChild(gift);
-            setTimeout(() => { gift.style.top = '110%'; }, 50);
-            
+            document.getElementById('game-area').appendChild(gift); setTimeout(() => { gift.style.top = '110%'; }, 50);
             const removeTimer = setTimeout(() => { if (gift.parentNode) gift.remove(); }, 5000);
             gift.addEventListener('pointerdown', (e) => { e.stopPropagation(); clearTimeout(removeTimer); gift.remove(); triggerRandomEvent(); });
         }
@@ -877,96 +669,45 @@
             else activateBuff('alt_click_x5', 'Каждый ваш второй клик будет в 5 раз сильнее на 5 минут!');
         }
 
-        function activateBuff(type, message) {
-            game.activeBuff = type; game.buffTimeLeft = 300; sessionClickCount = 0; calculateStats();
-            showModal('Подарок с небес!', message, 'alert');
-        }
+        function activateBuff(type, message) { game.activeBuff = type; game.buffTimeLeft = 300; sessionClickCount = 0; calculateStats(); showModal('Подарок с небес!', message, 'alert'); }
 
-        window.buyClickHelper = function(index) {
-            const ch = game.clickHelpers[index]; const cost = calculateCost(ch.baseCost, ch.costMult, ch.count);
-            if (game.coins >= cost) { game.coins -= cost; ch.count++; calculateStats(); if(isAudioInitialized){uiClickSynth.triggerAttackRelease("E2", "16n");} }
-        }
-        window.buyHelper = function(index) {
-            const h = game.helpers[index]; const cost = calculateCost(h.baseCost, h.costMult, h.count);
-            if (game.coins >= cost) { game.coins -= cost; h.count++; calculateStats(); if(isAudioInitialized){uiClickSynth.triggerAttackRelease("E2", "16n");} }
-        }
-        window.buyUpgrade = function(index) {
-            const u = game.upgrades[index];
-            if (!u.bought && game.coins >= u.cost) { game.coins -= u.cost; u.bought = true; calculateStats(); if(isAudioInitialized){uiClickSynth.triggerAttackRelease("E2", "16n");} }
-        }
-        window.buyPrestigeUpgrade = function(index) {
-            const pu = game.prestigeUpgrades[index]; const cost = calculateCost(pu.baseCost, pu.costMult, pu.count);
-            if (game.diamonds >= cost) { game.diamonds -= cost; pu.count++; calculateStats(); if(isAudioInitialized){uiClickSynth.triggerAttackRelease("E2", "16n");} }
-        }
-        window.buySound = function(index) {
-            const s = game.sounds[index];
-            if (!s.bought && game.coins >= s.cost) { game.coins -= s.cost; s.bought = true; equipSound(s.id); calculateStats(); }
-        }
+        window.buyClickHelper = function(index) { const ch = game.clickHelpers[index]; const cost = calculateCost(ch.baseCost, ch.costMult, ch.count); if (game.coins >= cost) { game.coins -= cost; ch.count++; calculateStats(); if(isAudioInitialized){uiClickSynth.triggerAttackRelease("E2", "16n");} } }
+        window.buyHelper = function(index) { const h = game.helpers[index]; const cost = calculateCost(h.baseCost, h.costMult, h.count); if (game.coins >= cost) { game.coins -= cost; h.count++; calculateStats(); if(isAudioInitialized){uiClickSynth.triggerAttackRelease("E2", "16n");} } }
+        window.buyUpgrade = function(index) { const u = game.upgrades[index]; if (!u.bought && game.coins >= u.cost) { game.coins -= u.cost; u.bought = true; calculateStats(); if(isAudioInitialized){uiClickSynth.triggerAttackRelease("E2", "16n");} } }
+        window.buyPrestigeUpgrade = function(index) { const pu = game.prestigeUpgrades[index]; const cost = calculateCost(pu.baseCost, pu.costMult, pu.count); if (game.diamonds >= cost) { game.diamonds -= cost; pu.count++; calculateStats(); if(isAudioInitialized){uiClickSynth.triggerAttackRelease("E2", "16n");} } }
+        window.buySound = function(index) { const s = game.sounds[index]; if (!s.bought && game.coins >= s.cost) { game.coins -= s.cost; s.bought = true; equipSound(s.id); calculateStats(); } }
         window.equipSound = function(id) { game.equippedSound = id; renderShops(); saveGame(); }
-        window.buyBackground = function(index) {
-            const b = game.backgrounds[index];
-            if (!b.bought && game.coins >= b.cost) { game.coins -= b.cost; b.bought = true; equipBackground(b.id); calculateStats(); }
-        }
+        window.buyBackground = function(index) { const b = game.backgrounds[index]; if (!b.bought && game.coins >= b.cost) { game.coins -= b.cost; b.bought = true; equipBackground(b.id); calculateStats(); } }
         window.equipBackground = function(id) { game.equippedBackground = id; applyBackground(); renderShops(); saveGame(); }
 
-        // --- СОХРАНЕНИЯ И ЦИКЛ ---
-        function saveGame() {
-            game.lastSaveTime = Date.now();
-            localStorage.setItem('advancedClickerSave', JSON.stringify(game));
-        }
+        function saveGame() { game.lastSaveTime = Date.now(); localStorage.setItem('advancedClickerSave', JSON.stringify(game)); }
 
         function loadGame() {
             const save = localStorage.getItem('advancedClickerSave');
             if (save) {
-                const parsed = JSON.parse(save);
-                game = { ...game, ...parsed };
-                if (typeof game.volume === 'undefined') game.volume = 1.0;
-                
-                // Восстановление массивов
-                if (!game.clickHelpers) game.clickHelpers = JSON.parse(JSON.stringify(defaultClickHelpers));
-                defaultClickHelpers.forEach(dch => { if (!game.clickHelpers.find(ch => ch.id === dch.id)) game.clickHelpers.push(JSON.parse(JSON.stringify(dch))); });
+                const parsed = JSON.parse(save); game = { ...game, ...parsed }; if (typeof game.volume === 'undefined') game.volume = 1.0;
+                if (!game.clickHelpers) game.clickHelpers = JSON.parse(JSON.stringify(defaultClickHelpers)); defaultClickHelpers.forEach(dch => { if (!game.clickHelpers.find(ch => ch.id === dch.id)) game.clickHelpers.push(JSON.parse(JSON.stringify(dch))); });
                 defaultPrestigeUpgrades.forEach(dpu => { if (!game.prestigeUpgrades.find(pu => pu.id === dpu.id)) game.prestigeUpgrades.push(JSON.parse(JSON.stringify(dpu))); });
-                if (!game.sounds) { game.sounds = JSON.parse(JSON.stringify(defaultSounds)); game.equippedSound = 'default'; } 
-                else { defaultSounds.forEach(ds => { if (!game.sounds.find(s => s.id === ds.id)) game.sounds.push(JSON.parse(JSON.stringify(ds))); }); }
-                if (!game.backgrounds) { game.backgrounds = JSON.parse(JSON.stringify(defaultBackgrounds)); game.equippedBackground = 'default'; } 
-                else { defaultBackgrounds.forEach(dbg => { if (!game.backgrounds.find(b => b.id === dbg.id)) game.backgrounds.push(JSON.parse(JSON.stringify(dbg))); }); }
+                if (!game.sounds) { game.sounds = JSON.parse(JSON.stringify(defaultSounds)); game.equippedSound = 'default'; } else { defaultSounds.forEach(ds => { if (!game.sounds.find(s => s.id === ds.id)) game.sounds.push(JSON.parse(JSON.stringify(ds))); }); }
+                if (!game.backgrounds) { game.backgrounds = JSON.parse(JSON.stringify(defaultBackgrounds)); game.equippedBackground = 'default'; } else { defaultBackgrounds.forEach(dbg => { if (!game.backgrounds.find(b => b.id === dbg.id)) game.backgrounds.push(JSON.parse(JSON.stringify(dbg))); }); }
                 if (typeof game.prestigeCount === 'undefined') game.prestigeCount = 0;
 
                 const diffTime = Date.now() - game.lastSaveTime;
                 if (diffTime > 60000) { 
-                    calculateStats(); 
-                    let offlineBonus = 1;
-                    const puOffline = game.prestigeUpgrades.find(p => p.type === 'offlineMult');
-                    if (puOffline) offlineBonus += puOffline.count * 0.5;
+                    calculateStats(); let offlineBonus = 1; const puOffline = game.prestigeUpgrades.find(p => p.type === 'offlineMult'); if (puOffline) offlineBonus += puOffline.count * 0.5;
                     const offlineEarnings = (diffTime / 1000) * currentCPS * offlineBonus;
-                    if (offlineEarnings > 0) {
-                        game.coins += offlineEarnings; game.totalCoinsInRun += offlineEarnings;
-                        showModal('С возвращением!', `Вы отсутствовали ${formatNumber(diffTime / 1000)} сек.\nВаши помощники заработали: ${formatNumber(offlineEarnings)} монет!`, 'alert');
-                    }
+                    if (offlineEarnings > 0) { game.coins += offlineEarnings; game.totalCoinsInRun += offlineEarnings; showModal('С возвращением!', `Вы отсутствовали ${formatNumber(diffTime / 1000)} сек.\nВаши помощники заработали: ${formatNumber(offlineEarnings)} монет!`, 'alert'); }
                 }
             }
             updateItemImage(); applyBackground(); calculateStats();
         }
 
-        function hardReset() {
-            showModal('УДАЛЕНИЕ ИГРЫ', 'Вы УВЕРЕНЫ, что хотите полностью обнулить игру? ВСЕ алмазы и прогресс будут стерты навсегда!', 'confirm', () => {
-                localStorage.removeItem('advancedClickerSave'); location.reload();
-            });
-        }
+        function hardReset() { showModal('УДАЛЕНИЕ ИГРЫ', 'Вы УВЕРЕНЫ, что хотите полностью обнулить игру? ВСЕ алмазы и прогресс будут стерты навсегда!', 'confirm', () => { localStorage.removeItem('advancedClickerSave'); location.reload(); }); }
 
-        setInterval(() => {
-            if (currentCPS > 0) { const amount = currentCPS / 10; game.coins += amount; game.totalCoinsInRun += amount; updateUI(); }
-        }, 100);
-
-        setInterval(() => {
-            if (game.buffTimeLeft > 0) { game.buffTimeLeft--; if (game.buffTimeLeft <= 0) { game.activeBuff = null; calculateStats(); } }
-            if (nextGiftTimeLeft > 0) { nextGiftTimeLeft--; } else { spawnGift(); nextGiftTimeLeft = 120; }
-            updateUI();
-        }, 1000);
-
+        setInterval(() => { if (currentCPS > 0) { const amount = currentCPS / 10; game.coins += amount; game.totalCoinsInRun += amount; updateUI(); } }, 100);
+        setInterval(() => { if (game.buffTimeLeft > 0) { game.buffTimeLeft--; if (game.buffTimeLeft <= 0) { game.activeBuff = null; calculateStats(); } } if (nextGiftTimeLeft > 0) { nextGiftTimeLeft--; } else { spawnGift(); nextGiftTimeLeft = 120; } updateUI(); }, 1000);
         setInterval(saveGame, 10000);
         loadGame();
-
     </script>
 </body>
 </html>
