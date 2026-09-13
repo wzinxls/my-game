@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Продвинутый Кликер</title>
@@ -795,7 +794,7 @@
             });
             // Фоны
             const bgContainer = document.getElementById('tab-backgrounds');
-            bgContainer.innerHTML = `<div class="card" style="border-color: ${game.equippedBackground === 'default' ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)'};"><div class="card-header"><div class="card-title">Классика</div></div><div class="card-desc">Начальный фон</div><button class="btn-buy" style="background: ${game.equippedBackground === 'default' ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${game.equippedBackground === 'default' ? 'disabled' : ''} onclick="equipBackground('default')">${game.equippedBackground === 'default' ? 'Выбрано' : 'Выбрать'}</button></div>`;
+            bgContainer.innerHTML = `<div class="card" style="border-color: ${game.equippedBackground === 'default' ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)'};"><div class="card-header"><div class="card-title">Классика</div></div><div class="card-desc">Загружает images/backgrounds/default.jpg</div><button class="btn-buy" style="background: ${game.equippedBackground === 'default' ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${game.equippedBackground === 'default' ? 'disabled' : ''} onclick="equipBackground('default')">${game.equippedBackground === 'default' ? 'Выбрано' : 'Выбрать'}</button></div>`;
             game.backgrounds.forEach((b, index) => {
                 const canAfford = game.coins >= b.cost; const isEquipped = game.equippedBackground === b.id;
                 let btn = b.bought ? `<button class="btn-buy" style="background: ${isEquipped ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${isEquipped ? 'disabled' : ''} onclick="equipBackground('${b.id}')">${isEquipped ? 'Выбрано' : 'Выбрать'}</button>` : `<button class="btn-buy" data-cost="${b.cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buyBackground(${index})"><span>Купить</span><span>${formatNumber(b.cost)} 💰</span></button>`;
