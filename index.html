@@ -3,12 +3,11 @@
 <head>
 <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Продвинутый Кликер</title>
     <style>
         :root {
             --bg-color: #1a1a1a;
-            --panel-bg: transparent; /* Сделали прозрачным для абстрактного фона */
             --card-bg: rgba(50, 50, 50, 0.9);
             --accent-color: #4CAF50;
             --accent-hover: #45a049;
@@ -22,7 +21,7 @@
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: white;
-            background-color: #000; /* Черный фон для краев (letterboxing) */
+            background-color: #000; 
             display: flex;
             align-items: center;
             justify-content: center;
@@ -40,28 +39,109 @@
             max-width: calc(100vh * (9 / 16));
             max-height: calc(100vw * (16 / 9));
             display: flex;
-            flex-direction: column; /* Вертикальное расположение для телефонов */
+            flex-direction: column;
             background-color: #111;
             overflow: hidden;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
 
+        /* --- ГЛАВНОЕ МЕНЮ --- */
+        #main-menu {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            background: repeating-linear-gradient(-45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 10px, transparent 10px, transparent 20px), linear-gradient(135deg, #101015, #1a1a24, #150f24);
+            background-size: 200% 200%;
+            animation: abstractPanel 15s infinite alternate linear;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #main-menu h1 {
+            font-size: 36px;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            margin-bottom: 10px;
+        }
+
+        #main-menu p {
+            color: var(--text-muted);
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 40px;
+            max-width: 80%;
+        }
+
+        .btn-start {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 15px 50px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            transition: all 0.2s;
+            animation: pulse 2s infinite;
+        }
+
+        .btn-start:active { transform: scale(0.95); }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 15px rgba(76, 175, 80, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 25px rgba(76, 175, 80, 0.8); }
+            100% { transform: scale(1); box-shadow: 0 0 15px rgba(76, 175, 80, 0.5); }
+        }
+
+        /* --- ИГРОВОЙ ЭКРАН --- */
+        #game-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
         .game-area {
-            flex: 1; /* Занимает верхнюю часть (остаток после магазина) */
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             position: relative;
-            overflow: hidden;
-            
-            /* Фон загружается через JavaScript */
             background-color: #6a83c7; 
             background-size: cover; 
             background-position: center bottom; 
             background-repeat: no-repeat;
             transition: background-image 0.5s ease;
         }
+
+        /* Кнопка настроек / паузы */
+        .btn-pause {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 45px;
+            height: 45px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            font-size: 24px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20;
+            backdrop-filter: blur(5px);
+        }
+        .btn-pause:active { transform: scale(0.9); }
 
         .score-board {
             text-align: center;
@@ -73,12 +153,13 @@
             border: 1px solid rgba(255,255,255,0.1);
             backdrop-filter: blur(5px);
             z-index: 2;
-            width: 85%; /* Делаем доску немного уже, чтобы не упиралась в края */
+            width: 85%;
             box-sizing: border-box;
+            margin-top: 60px; /* Отступ от кнопки паузы */
         }
 
         .coins-text {
-            font-size: 38px; /* Уменьшили шрифт, чтобы большие числа влезали в 9:16 */
+            font-size: 38px;
             font-weight: 800;
             color: #ffd700;
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
@@ -94,45 +175,27 @@
             display: none; 
         }
 
-        .stats-text {
-            font-size: 16px;
-            color: var(--text-muted);
-            margin-top: 5px;
-        }
-        
-        .buff-text {
-            font-size: 16px;
-            color: #ffeb3b;
-            font-weight: bold;
-            margin-top: 10px;
-            text-shadow: 0 0 5px rgba(255, 235, 59, 0.5);
-            display: none;
-        }
+        .stats-text { font-size: 16px; color: var(--text-muted); margin-top: 5px; }
+        .buff-text { font-size: 16px; color: #ffeb3b; font-weight: bold; margin-top: 10px; text-shadow: 0 0 5px rgba(255, 235, 59, 0.5); display: none; }
 
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-            100% { transform: translateY(0px); }
-        }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
 
         .click-item-container {
             position: relative;
             animation: float 4s ease-in-out infinite;
             z-index: 5;
+            margin-bottom: 60px; /* Место для кнопки магазина */
         }
 
         .click-item {
-            width: 200px; /* Уменьшили сам предмет под узкий экран */
+            width: 200px;
             max-width: 60vw;
             cursor: pointer;
             transition: transform 0.05s, filter 0.3s;
             filter: drop-shadow(0px 15px 25px rgba(0,0,0,0.6));
             -webkit-user-drag: none; 
         }
-
-        .click-item:active {
-            transform: scale(0.92);
-        }
+        .click-item:active { transform: scale(0.92); }
 
         .floating-text {
             position: absolute;
@@ -144,311 +207,232 @@
             text-shadow: 0px 2px 4px rgba(0,0,0,0.8);
             z-index: 10;
         }
+        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-100px) scale(1.5); } }
 
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-100px) scale(1.5); }
-        }
-
-        /* --- АБСТРАКТНЫЙ ФОН ДЛЯ ПАНЕЛИ МАГАЗИНА --- */
-        .shop-area {
-            width: 100%; /* Занимает всю ширину */
-            height: 55%; /* Магазин всегда занимает 55% экрана снизу */
-            border-top: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
-            position: relative;
-            z-index: 10;
-            transition: height 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* Плавная анимация скрытия */
-        }
-
-        /* Состояние скрытого магазина */
-        .shop-area.closed {
-            height: 0%;
-            border-top: none;
-            overflow: hidden;
-        }
-
-        /* Стили для самой кнопки */
+        /* Кнопка вызова магазина */
         .shop-toggle-btn {
             position: absolute;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.6);
-            color: var(--text-muted);
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 8px 20px;
-            border-radius: 20px;
+            background: linear-gradient(135deg, #ff9800, #f44336);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 12px 30px;
+            border-radius: 25px;
             cursor: pointer;
+            font-size: 18px;
             font-weight: bold;
             z-index: 20;
-            backdrop-filter: blur(5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
             transition: all 0.2s;
         }
+        .shop-toggle-btn:active { transform: translateX(-50%) scale(0.95); }
 
-        .shop-toggle-btn:hover {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border-color: var(--accent-color);
+        /* --- МАГАЗИН (НА ВЕСЬ ЭКРАН) --- */
+        .shop-area {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            z-index: 50;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        /* Генерация абстрактных линий и градиента */
+        .shop-area.open {
+            transform: translateY(0%);
+        }
+
         .shop-area::before {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             z-index: -1;
-            background: repeating-linear-gradient(
-                -45deg,
-                rgba(255, 255, 255, 0.02) 0px,
-                rgba(255, 255, 255, 0.02) 10px,
-                transparent 10px,
-                transparent 20px
-            ), linear-gradient(135deg, #101015, #1a1a24, #150f24);
+            background: repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 10px, transparent 10px, transparent 20px), linear-gradient(135deg, #101015, #1a1a24, #150f24);
             background-size: 200% 200%;
             animation: abstractPanel 20s infinite alternate linear;
         }
+        @keyframes abstractPanel { 0% { background-position: 0% 0%; filter: hue-rotate(0deg); } 100% { background-position: 100% 100%; filter: hue-rotate(90deg); } }
 
-        /* Анимация движения линий и переливания цвета */
-        @keyframes abstractPanel {
-            0% { background-position: 0% 0%; filter: hue-rotate(0deg); }
-            100% { background-position: 100% 100%; filter: hue-rotate(90deg); }
-        }
-
-        .tabs {
-            display: flex;
-            background: rgba(0,0,0,0.7);
-            flex-wrap: wrap; /* Позволяет вкладкам переноситься, если не влезают */
-        }
-
-        .tab-btn {
-            flex: 1 1 30%; /* Равномерно распределяем ширину */
-            padding: 10px 0;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-            border-bottom: 3px solid transparent;
-        }
-
-        .tab-btn:hover {
-            color: var(--text-main);
-            background: rgba(255,255,255,0.05);
-        }
-
-        .tab-btn.active {
-            color: var(--text-main);
-            border-bottom-color: var(--accent-color);
-        }
-
-        .tab-btn[data-target="tab-prestige"].active {
-            border-bottom-color: var(--accent-diamond);
-        }
-
-        .tab-content {
-            display: none;
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        .tab-content.active {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .card {
-            background: var(--card-bg);
+        .close-shop-bar {
+            background: rgba(0,0,0,0.8);
             padding: 15px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.05);
             display: flex;
-            flex-direction: column;
-            gap: 10px;
-            transition: transform 0.1s, border-color 0.2s;
-            backdrop-filter: blur(5px); /* Легкое размытие заднего фона магазина под карточками */
-        }
-
-        .card:hover {
-            border-color: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        .card-title {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .card-count {
-            font-size: 18px;
-            color: var(--text-muted);
-            background: rgba(0,0,0,0.5);
-            padding: 2px 8px;
-            border-radius: 10px;
-        }
-
-        .card-desc {
-            font-size: 14px;
-            color: var(--text-muted);
-            line-height: 1.4;
-        }
-
-        .btn-buy {
-            background: var(--accent-color);
+        .btn-close-shop {
+            background: transparent;
             color: white;
-            border: none;
-            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 20px;
+            border-radius: 20px;
             font-size: 16px;
-            font-weight: bold;
-            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            backdrop-filter: blur(5px);
         }
+        .btn-close-shop:active { background: rgba(255,255,255,0.1); }
 
-        .btn-buy:hover:not(:disabled) {
-            background: var(--accent-hover);
-            transform: scale(1.02);
-        }
+        .tabs { display: flex; background: rgba(0,0,0,0.7); flex-wrap: wrap; }
+        .tab-btn { flex: 1 1 30%; padding: 10px 0; background: transparent; border: none; color: var(--text-muted); font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; border-bottom: 3px solid transparent; }
+        .tab-btn.active { color: var(--text-main); border-bottom-color: var(--accent-color); }
+        .tab-btn[data-target="tab-prestige"].active { border-bottom-color: var(--accent-diamond); }
 
-        .btn-buy:active:not(:disabled) {
-            transform: scale(0.98);
-        }
+        .tab-content { display: none; flex: 1; overflow-y: auto; padding: 20px; }
+        .tab-content.active { display: flex; flex-direction: column; gap: 15px; padding-bottom: 80px; } /* Отступ снизу для прокрутки */
 
-        .btn-buy:disabled {
-            background: #444;
-            color: #777;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
+        .card { background: var(--card-bg); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 10px; backdrop-filter: blur(5px); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-size: 18px; font-weight: bold; }
+        .card-count { font-size: 18px; color: var(--text-muted); background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 10px; }
+        .card-desc { font-size: 14px; color: var(--text-muted); line-height: 1.4; }
 
-        .btn-prestige-buy {
-            background: #00b8d4;
-        }
-        .btn-prestige-buy:hover:not(:disabled) {
-            background: #00e5ff;
-        }
+        .btn-buy { background: var(--accent-color); color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .btn-buy:active:not(:disabled) { transform: scale(0.98); }
+        .btn-buy:disabled { background: #444; color: #777; cursor: not-allowed; opacity: 0.7; }
+        .btn-prestige-buy { background: #00b8d4; }
 
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
 
-        .prestige-box {
-            text-align: center;
-            padding: 20px;
-            background: rgba(0, 229, 255, 0.1);
-            border: 2px dashed var(--accent-diamond);
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
+        .prestige-box { text-align: center; padding: 20px; background: rgba(0, 229, 255, 0.1); border: 2px dashed var(--accent-diamond); border-radius: 12px; margin-bottom: 20px; }
 
-        #modal-overlay {
-            display: none;
-            position: absolute; /* Теперь привязано к контейнеру, а не к экрану */
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.75);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(5px);
+        /* Всплывающие окна (модалки) */
+        .modal-overlay {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(5px);
         }
         .modal-box {
-            background: rgba(30, 30, 30, 0.95);
-            padding: 25px;
-            border-radius: 15px;
-            border: 1px solid var(--accent-color);
-            max-width: 350px;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            background: rgba(30, 30, 30, 0.95); padding: 25px; border-radius: 15px; border: 1px solid var(--accent-color);
+            width: 80%; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
         }
-        #modal-title { margin-top: 0; margin-bottom: 10px; font-size: 22px; }
-        #modal-text { color: var(--text-muted); line-height: 1.5; font-size: 15px; margin-bottom: 20px; }
-        .modal-buttons-container { display: flex; gap: 10px; justify-content: center; }
+        .modal-buttons-container { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
+
+        /* Ползунок громкости */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            margin: 20px 0;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            margin-top: -8px; 
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.8);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+        }
 
     </style>
-    <!-- Библиотека Tone.js для генерации звука синтезатора -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
 </head>
 <body>
 
     <div id="app-container">
-        <!-- Игровая зона -->
-        <div class="game-area" id="game-area">
-            <div class="score-board">
-                <div class="coins-text" id="coins-display">0</div>
-                <div class="diamonds-text" id="diamonds-container"><span id="diamonds-display">0</span> 💎</div>
-                <div class="stats-text" id="cps-display">Доход: 0 монет/сек</div>
-                <div class="stats-text" id="click-power-display">За клик: 1</div>
-                <div class="stats-text" id="crit-display">Крит: 1% (x2.0)</div>
-                <div class="buff-text" id="buff-display">Бафф: <span id="buff-name"></span> (<span id="buff-timer">00:00</span>)</div>
-                <div class="stats-text" id="next-gift-timer" style="margin-top: 10px; color: #ffeb3b; text-shadow: 0 0 5px rgba(255, 235, 59, 0.3);">Подарок через: 02:00</div>
+        
+        <!-- ГЛАВНОЕ МЕНЮ -->
+        <div id="main-menu">
+            <h1>Продвинутый Кликер</h1>
+            <p>Кликай, зарабатывай монеты, покупай улучшения и эволюционируй свой предмет!</p>
+            <button class="btn-start" onclick="startGame()">ИГРАТЬ</button>
+        </div>
+
+        <!-- ИГРОВОЙ ЭКРАН -->
+        <div id="game-screen" style="display: none;">
+            <div class="game-area" id="game-area">
+                
+                <button class="btn-pause" onclick="openPauseMenu()">⚙️</button>
+                
+                <div class="score-board">
+                    <div class="coins-text" id="coins-display">0</div>
+                    <div class="diamonds-text" id="diamonds-container"><span id="diamonds-display">0</span> 💎</div>
+                    <div class="stats-text" id="cps-display">Доход: 0 монет/сек</div>
+                    <div class="stats-text" id="click-power-display">За клик: 1</div>
+                    <div class="stats-text" id="crit-display">Крит: 1% (x2.0)</div>
+                    <div class="buff-text" id="buff-display">Бафф: <span id="buff-name"></span> (<span id="buff-timer">00:00</span>)</div>
+                    <div class="stats-text" id="next-gift-timer" style="margin-top: 10px; color: #ffeb3b;">Подарок через: 02:00</div>
+                </div>
+            
+                <div class="click-item-container">
+                    <img src="" alt="Кликни меня" class="click-item" id="main-clicker">
+                </div>
+                
+                <button class="shop-toggle-btn" onclick="openShop()">🛒 Магазин</button>
             </div>
-        
-        <div class="click-item-container">
-            <img src="" alt="Кликни меня" class="click-item" id="main-clicker">
-        </div>
-        
-        <!-- Кнопка скрытия магазина -->
-        <button class="shop-toggle-btn" id="shop-toggle-btn" onclick="toggleShop()">▼ Скрыть магазин</button>
-    </div>
-
-    <!-- Боковая панель -->
-    <div class="shop-area">
-        <div class="tabs">
-            <button class="tab-btn active" data-target="tab-click">Клик</button>
-            <button class="tab-btn" data-target="tab-helpers">Помощники</button>
-            <button class="tab-btn" data-target="tab-upgrades">Улучшения</button>
-            <button class="tab-btn" data-target="tab-sounds">Звуки</button>
-            <button class="tab-btn" data-target="tab-backgrounds">Фоны</button>
-            <button class="tab-btn" data-target="tab-prestige" style="color: var(--accent-diamond);">Престиж</button>
         </div>
 
-        <div class="tab-content active" id="tab-click"></div>
-        <div class="tab-content" id="tab-helpers"></div>
-        <div class="tab-content" id="tab-upgrades"></div>
-        <div class="tab-content" id="tab-sounds"></div>
-        <div class="tab-content" id="tab-backgrounds"></div>
-
-        <div class="tab-content" id="tab-prestige">
-            <div class="prestige-box">
-                <h3 style="margin-top:0; color: var(--accent-diamond);">Сброс прогресса</h3>
-                <p style="font-size: 14px; color: var(--text-muted);">
-                    Сбросьте монеты, помощников и улучшения, чтобы получить Алмазы и <b>Эволюционировать предмет</b>!
-                </p>
-                <div style="font-size: 20px; margin: 15px 0;">Вы получите: <b id="prestige-gain" style="color:#fff;">+0 Алмазов</b></div>
-                <button class="btn-buy btn-prestige-buy" style="width: 100%; justify-content: center;" onclick="doPrestige()">Совершить Престиж</button>
+        <!-- МАГАЗИН -->
+        <div class="shop-area" id="shop-area">
+            <div class="close-shop-bar">
+                <button class="btn-close-shop" onclick="closeShop()">▼ Вернуться к игре</button>
             </div>
-            <div id="prestige-upgrades-container"></div>
+            <div class="tabs">
+                <button class="tab-btn active" data-target="tab-click">Клик</button>
+                <button class="tab-btn" data-target="tab-helpers">Помощники</button>
+                <button class="tab-btn" data-target="tab-upgrades">Улучшения</button>
+                <button class="tab-btn" data-target="tab-sounds">Звуки</button>
+                <button class="tab-btn" data-target="tab-backgrounds">Фоны</button>
+                <button class="tab-btn" data-target="tab-prestige" style="color: var(--accent-diamond);">Престиж</button>
+            </div>
+
+            <div class="tab-content active" id="tab-click"></div>
+            <div class="tab-content" id="tab-helpers"></div>
+            <div class="tab-content" id="tab-upgrades"></div>
+            <div class="tab-content" id="tab-sounds"></div>
+            <div class="tab-content" id="tab-backgrounds"></div>
+
+            <div class="tab-content" id="tab-prestige">
+                <div class="prestige-box">
+                    <h3 style="margin-top:0; color: var(--accent-diamond);">Сброс прогресса</h3>
+                    <p style="font-size: 14px; color: var(--text-muted);">
+                        Сбросьте монеты, помощников и улучшения, чтобы получить Алмазы и <b>Эволюционировать предмет</b>!
+                    </p>
+                    <div style="font-size: 20px; margin: 15px 0;">Вы получите: <b id="prestige-gain" style="color:#fff;">+0 Алмазов</b></div>
+                    <button class="btn-buy btn-prestige-buy" style="width: 100%; justify-content: center;" onclick="doPrestige()">Совершить Престиж</button>
+                </div>
+                <div id="prestige-upgrades-container"></div>
+            </div>
         </div>
-        
-        <div style="padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.5); display: flex; gap: 10px;">
-            <button class="btn-buy" style="flex:1; background: #555; justify-content:center; font-size: 14px;" onclick="saveGame()">Сохранить</button>
-            <button class="btn-buy" style="flex:1; background: #d32f2f; justify-content:center; font-size: 14px;" onclick="hardReset()">Полный сброс</button>
-        </div>
-    </div>
-        <!-- Всплывающее кастомное окно -->
-        <div id="modal-overlay">
+
+        <!-- МЕНЮ ПАУЗЫ / НАСТРОЕК -->
+        <div id="pause-menu" class="modal-overlay">
             <div class="modal-box">
-                <h3 id="modal-title" style="color: var(--accent-color);">Внимание</h3>
-                <div id="modal-text">Текст сообщения</div>
+                <h2 style="margin-top: 0; color: #fff;">Настройки</h2>
+                
+                <div style="text-align: left; margin-bottom: 5px; color: var(--text-muted);">Громкость звука: <span id="volume-val-display">100</span>%</div>
+                <input type="range" id="volume-slider" min="0" max="100" value="100" oninput="changeVolume(this.value)">
+                
+                <div style="margin-top: 30px; display: flex; flex-direction: column; gap: 10px;">
+                    <button class="btn-buy" style="justify-content: center; background: #555;" onclick="saveGame(); alert('Игра сохранена!');">💾 Сохранить игру</button>
+                    <button class="btn-buy" style="justify-content: center; background: #d32f2f;" onclick="hardReset()">⚠️ Полный сброс</button>
+                    <button class="btn-buy" style="justify-content: center; margin-top: 15px;" onclick="closePauseMenu()">▶ Продолжить</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ОКНА УВЕДОМЛЕНИЙ -->
+        <div id="modal-overlay" class="modal-overlay">
+            <div class="modal-box">
+                <h3 id="modal-title" style="color: var(--accent-color); margin-top:0;">Внимание</h3>
+                <div id="modal-text" style="color: var(--text-muted); line-height: 1.5;">Текст сообщения</div>
                 <div class="modal-buttons-container" id="modal-buttons"></div>
             </div>
         </div>
+
     </div> <!-- Конец app-container -->
 
     <script>
@@ -502,23 +486,24 @@
         ];
 
         const defaultSounds = [
-            { id: 's1', name: 'Звук 1', desc: 'Загружает music/sound1.mp3', cost: 1000, file: 'music/sound1.mp3', bought: false },
-            { id: 's2', name: 'Звук 2', desc: 'Загружает music/sound2.mp3', cost: 15000, file: 'music/sound2.mp3', bought: false },
-            { id: 's3', name: 'Звук 3', desc: 'Загружает music/sound3.mp3', cost: 50000, file: 'music/sound3.mp3', bought: false },
-            { id: 's4', name: 'Звук 4', desc: 'Загружает music/sound4.mp3', cost: 250000, file: 'music/sound4.mp3', bought: false },
-            { id: 's5', name: 'Звук 5', desc: 'Загружает music/sound5.mp3', cost: 1000000, file: 'music/sound5.mp3', bought: false }
+            { id: 's1', name: 'Кастомный звук 1', desc: 'Загружает music/sound1.mp3', cost: 1000, file: 'music/sound1.mp3', bought: false },
+            { id: 's2', name: 'Кастомный звук 2', desc: 'Загружает music/sound2.mp3', cost: 15000, file: 'music/sound2.mp3', bought: false },
+            { id: 's3', name: 'Кастомный звук 3', desc: 'Загружает music/sound3.mp3', cost: 50000, file: 'music/sound3.mp3', bought: false },
+            { id: 's4', name: 'Кастомный звук 4', desc: 'Загружает music/sound4.mp3', cost: 250000, file: 'music/sound4.mp3', bought: false },
+            { id: 's5', name: 'Кастомный звук 5', desc: 'Загружает music/sound5.mp3', cost: 1000000, file: 'music/sound5.mp3', bought: false }
         ];
 
         let game = {
             coins: 0,
             totalCoinsInRun: 0, 
             diamonds: 0,
-            prestigeCount: 0, // Уровень эволюции
+            prestigeCount: 0,
             lastSaveTime: Date.now(),
             activeBuff: null,
             buffTimeLeft: 0,
             equippedSound: 'default',
             equippedBackground: 'default',
+            volume: 1.0, // Громкость звука от 0 до 1
             clickHelpers: JSON.parse(JSON.stringify(defaultClickHelpers)),
             helpers: JSON.parse(JSON.stringify(defaultHelpers)),
             upgrades: JSON.parse(JSON.stringify(defaultUpgrades)),
@@ -547,6 +532,13 @@
         const mainClicker = document.getElementById('main-clicker');
         const gameArea = document.getElementById('game-area');
 
+        // Экраны
+        const menuScreen = document.getElementById('main-menu');
+        const gameScreen = document.getElementById('game-screen');
+        const shopArea = document.getElementById('shop-area');
+        const pauseMenu = document.getElementById('pause-menu');
+
+        // Звуки
         let isAudioInitialized = false;
         let mainClickSynth;
         let uiClickSynth;
@@ -565,49 +557,61 @@
             
             const mainFilter = new Tone.Filter(350, "lowpass").toDestination();
             mainClickSynth = new Tone.MembraneSynth({
-                pitchDecay: 0.005,
-                octaves: 1.2,
-                oscillator: { type: "sine" },
+                pitchDecay: 0.005, octaves: 1.2, oscillator: { type: "sine" },
                 envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.01 }
             }).connect(mainFilter);
-            mainClickSynth.volume.value = 5;
 
             const uiFilter = new Tone.Filter(500, "lowpass").toDestination();
             uiClickSynth = new Tone.MembraneSynth({
-                pitchDecay: 0.01,
-                octaves: 1.5,
-                oscillator: { type: "triangle" },
+                pitchDecay: 0.01, octaves: 1.5, oscillator: { type: "triangle" },
                 envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.01 }
             }).connect(uiFilter);
-            uiClickSynth.volume.value = 2;
 
             isAudioInitialized = true;
+            applyVolume();
         }
 
-        let isShopOpen = true;
-        window.toggleShop = function() {
-            const shop = document.querySelector('.shop-area');
-            const btn = document.getElementById('shop-toggle-btn');
-            
-            isShopOpen = !isShopOpen;
-            
-            if (isShopOpen) {
-                shop.classList.remove('closed');
-                btn.innerText = '▼ Скрыть магазин';
-            } else {
-                shop.classList.add('closed');
-                btn.innerText = '▲ Открыть магазин';
+        // --- УПРАВЛЕНИЕ ЭКРАНАМИ ---
+        function startGame() {
+            initAudio(); // Активируем звук по клику кнопки ИГРАТЬ
+            menuScreen.style.display = 'none';
+            gameScreen.style.display = 'flex';
+        }
+
+        function openShop() { shopArea.classList.add('open'); }
+        function closeShop() { shopArea.classList.remove('open'); }
+        
+        function openPauseMenu() {
+            pauseMenu.style.display = 'flex';
+            document.getElementById('volume-slider').value = Math.round(game.volume * 100);
+            document.getElementById('volume-val-display').innerText = Math.round(game.volume * 100);
+        }
+        function closePauseMenu() { pauseMenu.style.display = 'none'; }
+
+        // --- ГРОМКОСТЬ ---
+        window.changeVolume = function(val) {
+            game.volume = val / 100;
+            document.getElementById('volume-val-display').innerText = val;
+            applyVolume();
+            saveGame();
+        }
+
+        function applyVolume() {
+            for (let key in preloadedAudio) {
+                preloadedAudio[key].volume = game.volume * 0.8;
+            }
+            if (isAudioInitialized) {
+                if (game.volume === 0) {
+                    Tone.getDestination().mute = true;
+                } else {
+                    Tone.getDestination().mute = false;
+                    // Конвертация громкости от 0-1 в децибелы (логарифмическая шкала)
+                    Tone.getDestination().volume.value = 20 * Math.log10(game.volume);
+                }
             }
         }
 
-        document.addEventListener('pointerdown', (e) => {
-            initAudio();
-            if (isAudioInitialized && (e.target.closest('button') || e.target.closest('.tab-btn'))) {
-                uiClickSynth.detune.value = (Math.random() - 0.5) * 50;
-                uiClickSynth.triggerAttackRelease("E2", "16n");
-            }
-        });
-
+        // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
         function showModal(title, text, type, onConfirmCallback = null) {
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-text').innerHTML = text;
@@ -618,28 +622,17 @@
 
             if (type === 'alert') {
                 const btnOk = document.createElement('button');
-                btnOk.className = 'btn-buy';
-                btnOk.innerText = 'Понятно';
-                btnOk.style.justifyContent = 'center';
+                btnOk.className = 'btn-buy'; btnOk.innerText = 'Понятно'; btnOk.style.justifyContent = 'center';
                 btnOk.onclick = () => overlay.style.display = 'none';
                 btnsContainer.appendChild(btnOk);
             } else if (type === 'confirm') {
                 const btnNo = document.createElement('button');
-                btnNo.className = 'btn-buy';
-                btnNo.innerText = 'Отмена';
-                btnNo.style.background = '#555';
-                btnNo.style.justifyContent = 'center';
+                btnNo.className = 'btn-buy'; btnNo.innerText = 'Отмена'; btnNo.style.background = '#555'; btnNo.style.justifyContent = 'center';
                 btnNo.onclick = () => overlay.style.display = 'none';
 
                 const btnYes = document.createElement('button');
-                btnYes.className = 'btn-buy';
-                btnYes.innerText = 'Подтвердить';
-                btnYes.style.background = '#d32f2f';
-                btnYes.style.justifyContent = 'center';
-                btnYes.onclick = () => {
-                    overlay.style.display = 'none';
-                    if (onConfirmCallback) onConfirmCallback();
-                };
+                btnYes.className = 'btn-buy'; btnYes.innerText = 'Подтвердить'; btnYes.style.background = '#d32f2f'; btnYes.style.justifyContent = 'center';
+                btnYes.onclick = () => { overlay.style.display = 'none'; if (onConfirmCallback) onConfirmCallback(); };
 
                 btnsContainer.appendChild(btnNo);
                 btnsContainer.appendChild(btnYes);
@@ -653,54 +646,36 @@
             if (num < 1000000000) return (num / 1000000).toFixed(2) + 'M';
             return (num / 1000000000).toFixed(2) + 'B';
         }
-
         function formatTime(sec) {
-            let m = Math.floor(sec / 60);
-            let s = Math.floor(sec % 60);
+            let m = Math.floor(sec / 60); let s = Math.floor(sec % 60);
             return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
         }
+        function calculateCost(baseCost, multiplier, count) { return Math.floor(baseCost * Math.pow(multiplier, count)); }
 
-        function calculateCost(baseCost, multiplier, count) {
-            return Math.floor(baseCost * Math.pow(multiplier, count));
-        }
-
-        // Обновление графики предмета
+        // --- ИГРОВАЯ ЛОГИКА ---
         function updateItemImage() {
             const level = Math.min(game.prestigeCount, prestigeItemsConfig.length - 1);
             const itemConfig = prestigeItemsConfig[level];
-            
-            // Сбрасываем старую ошибку перед сменой файла
             mainClicker.onerror = null;
-            
-            // Заглушка, если файл не найден (рисуем цветной круг под уровень престижа)
             mainClicker.onerror = function() {
-                this.onerror = null; // Защита от бесконечного цикла ошибок
+                this.onerror = null;
                 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><circle cx="100" cy="100" r="90" fill="${itemConfig.color}" stroke="#ffffff" stroke-width="8"/><text x="50%" y="50%" text-anchor="middle" fill="#fff" font-size="30" font-family="Arial" dy=".3em">${itemConfig.name}</text></svg>`;
                 this.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
             };
-            
-            // Загружаем саму картинку
             mainClicker.src = itemConfig.file;
         }
 
-        // Обновление фона игры
         function applyBackground() {
             if (game.equippedBackground === 'default') {
                 gameArea.style.backgroundImage = "url('images/backgrounds/default.jpg')";
             } else {
                 const bg = game.backgrounds.find(b => b.id === game.equippedBackground);
-                if (bg) {
-                    gameArea.style.backgroundImage = `url('${bg.file}')`;
-                }
+                if (bg) gameArea.style.backgroundImage = `url('${bg.file}')`;
             }
         }
 
         function calculateStats() {
-            let prestigeFlatClick = 0;
-            let globalMult = 1;
-            let prestigeClickMult = 1;
-            let prestigeCpsMult = 1;
-
+            let prestigeFlatClick = 0; let globalMult = 1; let prestigeClickMult = 1; let prestigeCpsMult = 1;
             game.prestigeUpgrades.forEach(pu => {
                 if (pu.type === 'flatClick') prestigeFlatClick += pu.count;
                 if (pu.type === 'flatClick10') prestigeFlatClick += pu.count * 10;
@@ -709,8 +684,7 @@
                 if (pu.type === 'cpsMult') prestigeCpsMult *= (1 + (pu.count * 0.05));
             });
 
-            let clickMult = 1;
-            let uGlobalMult = 1;
+            let clickMult = 1; let uGlobalMult = 1;
             game.upgrades.forEach(u => {
                 if (u.bought) {
                     if (u.type === 'clickMult') clickMult *= u.value;
@@ -719,10 +693,7 @@
             });
 
             let finalGlobalMult = globalMult * uGlobalMult;
-
-            let baseClickPower = 1;
-            let calcCritChance = 1; 
-            let calcCritMult = 2; 
+            let baseClickPower = 1; let calcCritChance = 1; let calcCritMult = 2; 
             
             game.clickHelpers.forEach(ch => {
                 if (ch.type === 'flatClick') baseClickPower += ch.baseClick * ch.count;
@@ -730,21 +701,17 @@
                 else if (ch.type === 'critMult') calcCritMult += ch.count * 0.5;
             });
             
-            currentCritChance = calcCritChance;
-            currentCritMult = calcCritMult;
+            currentCritChance = calcCritChance; currentCritMult = calcCritMult;
             currentClickPower = (baseClickPower + prestigeFlatClick) * clickMult * prestigeClickMult * finalGlobalMult;
 
             let baseCPS = 0;
-            game.helpers.forEach(h => {
-                baseCPS += h.baseCPS * h.count;
-            });
+            game.helpers.forEach(h => { baseCPS += h.baseCPS * h.count; });
             currentCPS = baseCPS * prestigeCpsMult * finalGlobalMult;
 
             if (game.activeBuff === 'cps_boost') currentCPS *= 1.5;
             if (game.activeBuff === 'click_x2') currentClickPower *= 2;
 
-            renderShops();
-            updateUI();
+            renderShops(); updateUI();
         }
 
         function updateUI() {
@@ -757,7 +724,6 @@
                 uiDiamondsContainer.style.display = 'block';
                 uiDiamonds.innerText = formatNumber(game.diamonds);
             }
-
             document.getElementById('prestige-gain').innerText = `+${getPotentialDiamonds()} Алмазов`;
 
             if (game.buffTimeLeft > 0 && game.activeBuff) {
@@ -779,12 +745,8 @@
                 if (btn.hasAttribute('data-cost')) {
                     const cost = parseFloat(btn.getAttribute('data-cost'));
                     const currency = btn.getAttribute('data-currency');
-                    
-                    if (currency === 'coins') {
-                        btn.disabled = game.coins < cost;
-                    } else if (currency === 'diamonds') {
-                        btn.disabled = game.diamonds < cost;
-                    }
+                    if (currency === 'coins') btn.disabled = game.coins < cost;
+                    else if (currency === 'diamonds') btn.disabled = game.diamonds < cost;
                 }
             });
         }
@@ -797,118 +759,57 @@
         }
 
         document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => switchTab(btn.getAttribute('data-target')));
+            btn.addEventListener('click', () => {
+                switchTab(btn.getAttribute('data-target'));
+                if(isAudioInitialized) { uiClickSynth.detune.value = (Math.random() - 0.5) * 50; uiClickSynth.triggerAttackRelease("E2", "16n"); }
+            });
         });
 
         function renderShops() {
-            const clickContainer = document.getElementById('tab-click');
-            clickContainer.innerHTML = '';
+            // Клик
+            const clickContainer = document.getElementById('tab-click'); clickContainer.innerHTML = '';
             game.clickHelpers.forEach((ch, index) => {
-                const cost = calculateCost(ch.baseCost, ch.costMult, ch.count);
-                const canAfford = game.coins >= cost;
-                clickContainer.innerHTML += `
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">${ch.name}</div>
-                            <div class="card-count">${ch.count}</div>
-                        </div>
-                        <div class="card-desc">${ch.desc}</div>
-                        <button class="btn-buy" data-cost="${cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buyClickHelper(${index})">
-                            <span>Купить</span><span>${formatNumber(cost)} 💰</span>
-                        </button>
-                    </div>`;
+                const cost = calculateCost(ch.baseCost, ch.costMult, ch.count); const canAfford = game.coins >= cost;
+                clickContainer.innerHTML += `<div class="card"><div class="card-header"><div class="card-title">${ch.name}</div><div class="card-count">${ch.count}</div></div><div class="card-desc">${ch.desc}</div><button class="btn-buy" data-cost="${cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buyClickHelper(${index})"><span>Купить</span><span>${formatNumber(cost)} 💰</span></button></div>`;
             });
-
-            const helpersContainer = document.getElementById('tab-helpers');
-            helpersContainer.innerHTML = '';
+            // Помощники
+            const helpersContainer = document.getElementById('tab-helpers'); helpersContainer.innerHTML = '';
             game.helpers.forEach((h, index) => {
-                const cost = calculateCost(h.baseCost, h.costMult, h.count);
-                const canAfford = game.coins >= cost;
-                helpersContainer.innerHTML += `
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">${h.name}</div>
-                            <div class="card-count">${h.count}</div>
-                        </div>
-                        <div class="card-desc">${h.desc}<br>Дает: ${h.baseCPS} м/с</div>
-                        <button class="btn-buy" data-cost="${cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buyHelper(${index})">
-                            <span>Купить</span><span>${formatNumber(cost)} 💰</span>
-                        </button>
-                    </div>`;
+                const cost = calculateCost(h.baseCost, h.costMult, h.count); const canAfford = game.coins >= cost;
+                helpersContainer.innerHTML += `<div class="card"><div class="card-header"><div class="card-title">${h.name}</div><div class="card-count">${h.count}</div></div><div class="card-desc">${h.desc}<br>Дает: ${h.baseCPS} м/с</div><button class="btn-buy" data-cost="${cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buyHelper(${index})"><span>Купить</span><span>${formatNumber(cost)} 💰</span></button></div>`;
             });
-
-            const upgradesContainer = document.getElementById('tab-upgrades');
-            upgradesContainer.innerHTML = '';
+            // Улучшения
+            const upgradesContainer = document.getElementById('tab-upgrades'); upgradesContainer.innerHTML = '';
             game.upgrades.forEach((u, index) => {
                 if (u.bought) return; 
                 const canAfford = game.coins >= u.cost;
-                upgradesContainer.innerHTML += `
-                    <div class="card">
-                        <div class="card-header"><div class="card-title">${u.name}</div></div>
-                        <div class="card-desc">${u.desc}</div>
-                        <button class="btn-buy" style="background: #ef6c00;" data-cost="${u.cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buyUpgrade(${index})">
-                            <span>Улучшить</span><span>${formatNumber(u.cost)} 💰</span>
-                        </button>
-                    </div>`;
+                upgradesContainer.innerHTML += `<div class="card"><div class="card-header"><div class="card-title">${u.name}</div></div><div class="card-desc">${u.desc}</div><button class="btn-buy" style="background: #ef6c00;" data-cost="${u.cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buyUpgrade(${index})"><span>Улучшить</span><span>${formatNumber(u.cost)} 💰</span></button></div>`;
             });
-
+            // Звуки
             const soundsContainer = document.getElementById('tab-sounds');
-            soundsContainer.innerHTML = `
-                <div class="card" style="border-color: ${game.equippedSound === 'default' ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)'};">
-                    <div class="card-header"><div class="card-title">Классика (Синтезатор)</div></div>
-                    <div class="card-desc">Стандартный кремовый звук</div>
-                    <button class="btn-buy" style="background: ${game.equippedSound === 'default' ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${game.equippedSound === 'default' ? 'disabled' : ''} onclick="equipSound('default')">
-                        ${game.equippedSound === 'default' ? 'Выбрано' : 'Выбрать'}
-                    </button>
-                </div>`;
-            
+            soundsContainer.innerHTML = `<div class="card" style="border-color: ${game.equippedSound === 'default' ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)'};"><div class="card-header"><div class="card-title">Классика (Синтезатор)</div></div><div class="card-desc">Стандартный кремовый звук</div><button class="btn-buy" style="background: ${game.equippedSound === 'default' ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${game.equippedSound === 'default' ? 'disabled' : ''} onclick="equipSound('default')">${game.equippedSound === 'default' ? 'Выбрано' : 'Выбрать'}</button></div>`;
             game.sounds.forEach((s, index) => {
-                const canAfford = game.coins >= s.cost;
-                const isEquipped = game.equippedSound === s.id;
-                let btn = s.bought 
-                    ? `<button class="btn-buy" style="background: ${isEquipped ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${isEquipped ? 'disabled' : ''} onclick="equipSound('${s.id}')">${isEquipped ? 'Выбрано' : 'Выбрать'}</button>`
-                    : `<button class="btn-buy" data-cost="${s.cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buySound(${index})"><span>Купить</span><span>${formatNumber(s.cost)} 💰</span></button>`;
+                const canAfford = game.coins >= s.cost; const isEquipped = game.equippedSound === s.id;
+                let btn = s.bought ? `<button class="btn-buy" style="background: ${isEquipped ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${isEquipped ? 'disabled' : ''} onclick="equipSound('${s.id}')">${isEquipped ? 'Выбрано' : 'Выбрать'}</button>` : `<button class="btn-buy" data-cost="${s.cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buySound(${index})"><span>Купить</span><span>${formatNumber(s.cost)} 💰</span></button>`;
                 soundsContainer.innerHTML += `<div class="card" style="border-color: ${isEquipped ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)'};"><div class="card-header"><div class="card-title">${s.name}</div></div><div class="card-desc">${s.desc}</div>${btn}</div>`;
             });
-
+            // Фоны
             const bgContainer = document.getElementById('tab-backgrounds');
-            bgContainer.innerHTML = `
-                <div class="card" style="border-color: ${game.equippedBackground === 'default' ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)'};">
-                    <div class="card-header"><div class="card-title">Классика</div></div>
-                    <div class="card-desc">Начальный фон</div>
-                    <button class="btn-buy" style="background: ${game.equippedBackground === 'default' ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${game.equippedBackground === 'default' ? 'disabled' : ''} onclick="equipBackground('default')">
-                        ${game.equippedBackground === 'default' ? 'Выбрано' : 'Выбрать'}
-                    </button>
-                </div>`;
-            
+            bgContainer.innerHTML = `<div class="card" style="border-color: ${game.equippedBackground === 'default' ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)'};"><div class="card-header"><div class="card-title">Классика</div></div><div class="card-desc">Начальный фон</div><button class="btn-buy" style="background: ${game.equippedBackground === 'default' ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${game.equippedBackground === 'default' ? 'disabled' : ''} onclick="equipBackground('default')">${game.equippedBackground === 'default' ? 'Выбрано' : 'Выбрать'}</button></div>`;
             game.backgrounds.forEach((b, index) => {
-                const canAfford = game.coins >= b.cost;
-                const isEquipped = game.equippedBackground === b.id;
-                let btn = b.bought 
-                    ? `<button class="btn-buy" style="background: ${isEquipped ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${isEquipped ? 'disabled' : ''} onclick="equipBackground('${b.id}')">${isEquipped ? 'Выбрано' : 'Выбрать'}</button>`
-                    : `<button class="btn-buy" data-cost="${b.cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buyBackground(${index})"><span>Купить</span><span>${formatNumber(b.cost)} 💰</span></button>`;
+                const canAfford = game.coins >= b.cost; const isEquipped = game.equippedBackground === b.id;
+                let btn = b.bought ? `<button class="btn-buy" style="background: ${isEquipped ? '#444' : 'var(--accent-color)'}; justify-content: center;" ${isEquipped ? 'disabled' : ''} onclick="equipBackground('${b.id}')">${isEquipped ? 'Выбрано' : 'Выбрать'}</button>` : `<button class="btn-buy" data-cost="${b.cost}" data-currency="coins" ${!canAfford ? 'disabled' : ''} onclick="buyBackground(${index})"><span>Купить</span><span>${formatNumber(b.cost)} 💰</span></button>`;
                 bgContainer.innerHTML += `<div class="card" style="border-color: ${isEquipped ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)'};"><div class="card-header"><div class="card-title">${b.name}</div></div><div class="card-desc">${b.desc}</div>${btn}</div>`;
             });
-
-            const prestigeContainer = document.getElementById('prestige-upgrades-container');
-            prestigeContainer.innerHTML = '';
+            // Престиж
+            const prestigeContainer = document.getElementById('prestige-upgrades-container'); prestigeContainer.innerHTML = '';
             game.prestigeUpgrades.forEach((pu, index) => {
-                const cost = calculateCost(pu.baseCost, pu.costMult, pu.count);
-                const canAfford = game.diamonds >= cost;
-                prestigeContainer.innerHTML += `
-                    <div class="card" style="border-color: rgba(0, 229, 255, 0.3);">
-                        <div class="card-header">
-                            <div class="card-title" style="color: var(--accent-diamond);">${pu.name}</div>
-                            <div class="card-count" style="color: var(--accent-diamond);">${pu.count}</div>
-                        </div>
-                        <div class="card-desc">${pu.desc}</div>
-                        <button class="btn-buy btn-prestige-buy" data-cost="${cost}" data-currency="diamonds" ${!canAfford ? 'disabled' : ''} onclick="buyPrestigeUpgrade(${index})">
-                            <span>Прокачать</span><span>${formatNumber(cost)} 💎</span>
-                        </button>
-                    </div>`;
+                const cost = calculateCost(pu.baseCost, pu.costMult, pu.count); const canAfford = game.diamonds >= cost;
+                prestigeContainer.innerHTML += `<div class="card" style="border-color: rgba(0, 229, 255, 0.3);"><div class="card-header"><div class="card-title" style="color: var(--accent-diamond);">${pu.name}</div><div class="card-count" style="color: var(--accent-diamond);">${pu.count}</div></div><div class="card-desc">${pu.desc}</div><button class="btn-buy btn-prestige-buy" data-cost="${cost}" data-currency="diamonds" ${!canAfford ? 'disabled' : ''} onclick="buyPrestigeUpgrade(${index})"><span>Прокачать</span><span>${formatNumber(cost)} 💎</span></button></div>`;
             });
         }
 
+        // --- СОБЫТИЯ ---
         function getPotentialDiamonds() {
             if (game.totalCoinsInRun < 10000) return 0;
             return Math.floor(Math.cbrt(game.totalCoinsInRun / 10000));
@@ -916,29 +817,13 @@
 
         function doPrestige() {
             const reward = getPotentialDiamonds();
-            if (reward <= 0) {
-                showModal('Слишком рано!', 'Нужно заработать за этот забег хотя бы 10 000 монет, чтобы получить престиж!', 'alert');
-                return;
-            }
+            if (reward <= 0) { showModal('Слишком рано!', 'Нужно заработать за этот забег хотя бы 10 000 монет, чтобы получить престиж!', 'alert'); return; }
             showModal('Совершить Престиж?', `Вы уверены? Вы потеряете все монеты, помощников и улучшения за монеты, но получите <b style="color:var(--accent-diamond)">${reward} Алмазов</b> и предмет эволюционирует!`, 'confirm', () => {
-                game.diamonds += reward;
-                game.prestigeCount++; // ЭВОЛЮЦИЯ!
+                game.diamonds += reward; game.prestigeCount++;
+                game.coins = 0; game.totalCoinsInRun = 0; game.activeBuff = null; game.buffTimeLeft = 0; sessionClickCount = 0;
+                game.clickHelpers = JSON.parse(JSON.stringify(defaultClickHelpers)); game.helpers = JSON.parse(JSON.stringify(defaultHelpers)); game.upgrades = JSON.parse(JSON.stringify(defaultUpgrades));
                 
-                game.coins = 0;
-                game.totalCoinsInRun = 0;
-                game.activeBuff = null;
-                game.buffTimeLeft = 0;
-                sessionClickCount = 0;
-
-                game.clickHelpers = JSON.parse(JSON.stringify(defaultClickHelpers));
-                game.helpers = JSON.parse(JSON.stringify(defaultHelpers));
-                game.upgrades = JSON.parse(JSON.stringify(defaultUpgrades));
-                
-                updateItemImage();
-                calculateStats();
-                saveGame();
-                switchTab('tab-prestige');
-                
+                updateItemImage(); calculateStats(); saveGame(); switchTab('tab-prestige');
                 showModal('Эволюция!', `Поздравляем! Ваш предмет эволюционировал на стадию: <b>${prestigeItemsConfig[Math.min(game.prestigeCount, prestigeItemsConfig.length-1)].name}</b>!`, 'alert');
             });
         }
@@ -952,136 +837,79 @@
                 } else {
                     try {
                         const audioClone = preloadedAudio[game.equippedSound].cloneNode(true);
-                        audioClone.volume = 0.8;
+                        audioClone.volume = game.volume * 0.8;
                         audioClone.play().catch(()=>{});
                     } catch (err) {}
                 }
             }
 
-            let finalPower = currentClickPower;
-            let isCrit = false;
+            let finalPower = currentClickPower; let isCrit = false;
+            if (game.activeBuff === 'alt_click_x5') { sessionClickCount++; if (sessionClickCount % 2 === 0) finalPower *= 5; }
+            if (Math.random() * 100 < currentCritChance) { finalPower *= currentCritMult; isCrit = true; }
 
-            if (game.activeBuff === 'alt_click_x5') {
-                sessionClickCount++;
-                if (sessionClickCount % 2 === 0) finalPower *= 5;
-            }
-
-            if (Math.random() * 100 < currentCritChance) {
-                finalPower *= currentCritMult;
-                isCrit = true;
-            }
-
-            game.coins += finalPower;
-            game.totalCoinsInRun += finalPower;
-            
+            game.coins += finalPower; game.totalCoinsInRun += finalPower;
             createFloatingText(e.clientX, e.clientY, `+${formatNumber(finalPower)}`, isCrit);
             updateUI();
         });
 
         function createFloatingText(x, y, text, isCrit) {
-            const el = document.createElement('div');
-            el.className = 'floating-text';
-            el.innerText = text;
-            
-            if (isCrit) {
-                el.style.color = '#ff5252';
-                el.style.fontSize = '36px';
-                el.style.textShadow = '0px 0px 15px rgba(255, 0, 0, 0.8)';
-            }
-            
-            const offsetX = (Math.random() - 0.5) * 40;
-            el.style.left = (x + offsetX) + 'px';
-            el.style.top = (y - 20) + 'px';
+            const el = document.createElement('div'); el.className = 'floating-text'; el.innerText = text;
+            if (isCrit) { el.style.color = '#ff5252'; el.style.fontSize = '36px'; el.style.textShadow = '0px 0px 15px rgba(255, 0, 0, 0.8)'; }
+            const offsetX = (Math.random() - 0.5) * 40; el.style.left = (x + offsetX) + 'px'; el.style.top = (y - 20) + 'px';
             document.body.appendChild(el);
-            
             setTimeout(() => el.remove(), 1000);
         }
 
         function spawnGift() {
-            const gift = document.createElement('div');
-            gift.innerText = '🎁';
-            gift.style.position = 'absolute';
-            gift.style.fontSize = '60px';
-            gift.style.cursor = 'pointer';
-            gift.style.left = (Math.random() * 80 + 10) + '%'; 
-            gift.style.top = '-80px';
-            gift.style.transition = 'top 5s linear';
-            gift.style.zIndex = 100;
-            gift.style.filter = 'drop-shadow(0px 0px 10px gold)';
-            
+            const gift = document.createElement('div'); gift.innerText = '🎁'; gift.style.position = 'absolute'; gift.style.fontSize = '60px'; gift.style.cursor = 'pointer'; gift.style.left = (Math.random() * 80 + 10) + '%'; gift.style.top = '-80px'; gift.style.transition = 'top 5s linear'; gift.style.zIndex = 100; gift.style.filter = 'drop-shadow(0px 0px 10px gold)';
             document.getElementById('game-area').appendChild(gift);
-            
             setTimeout(() => { gift.style.top = '110%'; }, 50);
             
-            const removeTimer = setTimeout(() => {
-                if (gift.parentNode) gift.remove();
-            }, 5000);
-            
-            gift.addEventListener('pointerdown', (e) => {
-                e.stopPropagation();
-                clearTimeout(removeTimer);
-                gift.remove();
-                triggerRandomEvent();
-            });
+            const removeTimer = setTimeout(() => { if (gift.parentNode) gift.remove(); }, 5000);
+            gift.addEventListener('pointerdown', (e) => { e.stopPropagation(); clearTimeout(removeTimer); gift.remove(); triggerRandomEvent(); });
         }
 
         function triggerRandomEvent() {
             const roll = Math.random();
-            if (roll < 0.25) {
-                showModal('Не повезло...', 'Коробочка оказалась пустой. Повезет в следующий раз!', 'alert');
-            } else if (roll < 0.5) {
-                activateBuff('cps_boost', '+50% к пассивному доходу на 5 минут!');
-            } else if (roll < 0.75) {
-                activateBuff('click_x2', 'Мощность всех ваших кликов удвоена на 5 минут!');
-            } else {
-                activateBuff('alt_click_x5', 'Каждый ваш второй клик будет в 5 раз сильнее на 5 минут!');
-            }
+            if (roll < 0.25) showModal('Не повезло...', 'Коробочка оказалась пустой. Повезет в следующий раз!', 'alert');
+            else if (roll < 0.5) activateBuff('cps_boost', '+50% к пассивному доходу на 5 минут!');
+            else if (roll < 0.75) activateBuff('click_x2', 'Мощность всех ваших кликов удвоена на 5 минут!');
+            else activateBuff('alt_click_x5', 'Каждый ваш второй клик будет в 5 раз сильнее на 5 минут!');
         }
 
         function activateBuff(type, message) {
-            game.activeBuff = type;
-            game.buffTimeLeft = 300;
-            sessionClickCount = 0;
-            calculateStats();
+            game.activeBuff = type; game.buffTimeLeft = 300; sessionClickCount = 0; calculateStats();
             showModal('Подарок с небес!', message, 'alert');
         }
 
         window.buyClickHelper = function(index) {
-            const ch = game.clickHelpers[index];
-            const cost = calculateCost(ch.baseCost, ch.costMult, ch.count);
-            if (game.coins >= cost) { game.coins -= cost; ch.count++; calculateStats(); }
+            const ch = game.clickHelpers[index]; const cost = calculateCost(ch.baseCost, ch.costMult, ch.count);
+            if (game.coins >= cost) { game.coins -= cost; ch.count++; calculateStats(); if(isAudioInitialized){uiClickSynth.triggerAttackRelease("E2", "16n");} }
         }
         window.buyHelper = function(index) {
-            const h = game.helpers[index];
-            const cost = calculateCost(h.baseCost, h.costMult, h.count);
-            if (game.coins >= cost) { game.coins -= cost; h.count++; calculateStats(); }
+            const h = game.helpers[index]; const cost = calculateCost(h.baseCost, h.costMult, h.count);
+            if (game.coins >= cost) { game.coins -= cost; h.count++; calculateStats(); if(isAudioInitialized){uiClickSynth.triggerAttackRelease("E2", "16n");} }
         }
         window.buyUpgrade = function(index) {
             const u = game.upgrades[index];
-            if (!u.bought && game.coins >= u.cost) { game.coins -= u.cost; u.bought = true; calculateStats(); }
+            if (!u.bought && game.coins >= u.cost) { game.coins -= u.cost; u.bought = true; calculateStats(); if(isAudioInitialized){uiClickSynth.triggerAttackRelease("E2", "16n");} }
         }
         window.buyPrestigeUpgrade = function(index) {
-            const pu = game.prestigeUpgrades[index];
-            const cost = calculateCost(pu.baseCost, pu.costMult, pu.count);
-            if (game.diamonds >= cost) { game.diamonds -= cost; pu.count++; calculateStats(); }
+            const pu = game.prestigeUpgrades[index]; const cost = calculateCost(pu.baseCost, pu.costMult, pu.count);
+            if (game.diamonds >= cost) { game.diamonds -= cost; pu.count++; calculateStats(); if(isAudioInitialized){uiClickSynth.triggerAttackRelease("E2", "16n");} }
         }
         window.buySound = function(index) {
             const s = game.sounds[index];
             if (!s.bought && game.coins >= s.cost) { game.coins -= s.cost; s.bought = true; equipSound(s.id); calculateStats(); }
         }
         window.equipSound = function(id) { game.equippedSound = id; renderShops(); saveGame(); }
-
         window.buyBackground = function(index) {
             const b = game.backgrounds[index];
             if (!b.bought && game.coins >= b.cost) { game.coins -= b.cost; b.bought = true; equipBackground(b.id); calculateStats(); }
         }
-        window.equipBackground = function(id) { 
-            game.equippedBackground = id; 
-            applyBackground();
-            renderShops(); 
-            saveGame(); 
-        }
+        window.equipBackground = function(id) { game.equippedBackground = id; applyBackground(); renderShops(); saveGame(); }
 
+        // --- СОХРАНЕНИЯ И ЦИКЛ ---
         function saveGame() {
             game.lastSaveTime = Date.now();
             localStorage.setItem('advancedClickerSave', JSON.stringify(game));
@@ -1092,76 +920,47 @@
             if (save) {
                 const parsed = JSON.parse(save);
                 game = { ...game, ...parsed };
+                if (typeof game.volume === 'undefined') game.volume = 1.0;
                 
+                // Восстановление массивов
                 if (!game.clickHelpers) game.clickHelpers = JSON.parse(JSON.stringify(defaultClickHelpers));
                 defaultClickHelpers.forEach(dch => { if (!game.clickHelpers.find(ch => ch.id === dch.id)) game.clickHelpers.push(JSON.parse(JSON.stringify(dch))); });
                 defaultPrestigeUpgrades.forEach(dpu => { if (!game.prestigeUpgrades.find(pu => pu.id === dpu.id)) game.prestigeUpgrades.push(JSON.parse(JSON.stringify(dpu))); });
-                
                 if (!game.sounds) { game.sounds = JSON.parse(JSON.stringify(defaultSounds)); game.equippedSound = 'default'; } 
                 else { defaultSounds.forEach(ds => { if (!game.sounds.find(s => s.id === ds.id)) game.sounds.push(JSON.parse(JSON.stringify(ds))); }); }
-
                 if (!game.backgrounds) { game.backgrounds = JSON.parse(JSON.stringify(defaultBackgrounds)); game.equippedBackground = 'default'; } 
                 else { defaultBackgrounds.forEach(dbg => { if (!game.backgrounds.find(b => b.id === dbg.id)) game.backgrounds.push(JSON.parse(JSON.stringify(dbg))); }); }
-                
                 if (typeof game.prestigeCount === 'undefined') game.prestigeCount = 0;
 
-                const now = Date.now();
-                const diffTime = now - game.lastSaveTime;
-                
+                const diffTime = Date.now() - game.lastSaveTime;
                 if (diffTime > 60000) { 
                     calculateStats(); 
-                    const secondsAway = diffTime / 1000;
-                    
                     let offlineBonus = 1;
                     const puOffline = game.prestigeUpgrades.find(p => p.type === 'offlineMult');
                     if (puOffline) offlineBonus += puOffline.count * 0.5;
-
-                    const offlineEarnings = secondsAway * currentCPS * offlineBonus;
-                    
+                    const offlineEarnings = (diffTime / 1000) * currentCPS * offlineBonus;
                     if (offlineEarnings > 0) {
-                        game.coins += offlineEarnings;
-                        game.totalCoinsInRun += offlineEarnings;
-                        showModal('С возвращением!', `Вы отсутствовали ${formatNumber(secondsAway)} сек.\nВаши помощники заработали: ${formatNumber(offlineEarnings)} монет!`, 'alert');
+                        game.coins += offlineEarnings; game.totalCoinsInRun += offlineEarnings;
+                        showModal('С возвращением!', `Вы отсутствовали ${formatNumber(diffTime / 1000)} сек.\nВаши помощники заработали: ${formatNumber(offlineEarnings)} монет!`, 'alert');
                     }
                 }
             }
-            updateItemImage();
-            applyBackground();
-            calculateStats();
+            updateItemImage(); applyBackground(); calculateStats();
         }
 
         function hardReset() {
             showModal('УДАЛЕНИЕ ИГРЫ', 'Вы УВЕРЕНЫ, что хотите полностью обнулить игру? ВСЕ алмазы и прогресс будут стерты навсегда!', 'confirm', () => {
-                localStorage.removeItem('advancedClickerSave');
-                location.reload();
+                localStorage.removeItem('advancedClickerSave'); location.reload();
             });
         }
 
         setInterval(() => {
-            if (currentCPS > 0) {
-                const amount = currentCPS / 10;
-                game.coins += amount;
-                game.totalCoinsInRun += amount;
-                updateUI();
-            }
+            if (currentCPS > 0) { const amount = currentCPS / 10; game.coins += amount; game.totalCoinsInRun += amount; updateUI(); }
         }, 100);
 
         setInterval(() => {
-            if (game.buffTimeLeft > 0) {
-                game.buffTimeLeft--;
-                if (game.buffTimeLeft <= 0) {
-                    game.activeBuff = null;
-                    calculateStats();
-                }
-            }
-
-            if (nextGiftTimeLeft > 0) {
-                nextGiftTimeLeft--;
-            } else {
-                spawnGift();
-                nextGiftTimeLeft = 120;
-            }
-
+            if (game.buffTimeLeft > 0) { game.buffTimeLeft--; if (game.buffTimeLeft <= 0) { game.activeBuff = null; calculateStats(); } }
+            if (nextGiftTimeLeft > 0) { nextGiftTimeLeft--; } else { spawnGift(); nextGiftTimeLeft = 120; }
             updateUI();
         }, 1000);
 
